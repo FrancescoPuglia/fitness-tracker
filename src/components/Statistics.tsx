@@ -16,7 +16,7 @@ export default function Statistics() {
 
   useEffect(() => {
     loadStatistics();
-  }, [loadStatistics, selectedPeriod]);
+  }, [selectedPeriod]);
 
   const loadStatistics = useCallback(() => {
     const records = Storage.getPersonalRecords();

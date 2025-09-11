@@ -87,13 +87,13 @@ export default function WorkoutTracker() {
 
     saveWorkout(updatedWorkout);
 
-    if (field === 'weight' && value > 0) {
+    if (field === 'weight' && typeof value === 'number' && value > 0) {
       const exercise = updatedWorkout.exercises.find(ex => ex.id === exerciseId);
-      if (exercise) {
+      if (exercise && exercise.reps) {
         Storage.savePersonalRecord({
           exerciseName: exercise.name,
           weight: value,
-          reps: exercise.reps || 0,
+          reps: exercise.reps,
           date: today
         });
       }

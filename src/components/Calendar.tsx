@@ -17,7 +17,7 @@ export default function Calendar() {
 
   useEffect(() => {
     loadCalendarData();
-  }, [currentDate, loadCalendarData]);
+  }, [currentDate]);
 
   const loadCalendarData = useCallback(() => {
     const year = currentDate.getFullYear();
