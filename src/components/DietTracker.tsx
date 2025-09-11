@@ -18,10 +18,6 @@ export default function DietTracker() {
 
   const today = formatDate();
 
-  useEffect(() => {
-    loadTodayDiet();
-  }, [loadTodayDiet]);
-
   const loadTodayDiet = useCallback(() => {
     let diet = Storage.getDietDay(today);
     
@@ -39,6 +35,10 @@ export default function DietTracker() {
     
     setCurrentDiet(diet);
   }, [today]);
+
+  useEffect(() => {
+    loadTodayDiet();
+  }, [loadTodayDiet]);
 
   const saveDiet = (diet: DietDay) => {
     Storage.saveDietDay(diet);

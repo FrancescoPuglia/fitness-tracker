@@ -20,24 +20,6 @@ export default function WorkoutTracker() {
 
   const today = formatDate();
 
-  useEffect(() => {
-    loadTodayWorkout();
-  }, [loadTodayWorkout]);
-
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (isTimerRunning) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev + 1);
-      }, 1000);
-    }
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [isTimerRunning]);
-
   const loadTodayWorkout = useCallback(() => {
     let workout = Storage.getWorkoutDay(today);
     
@@ -56,6 +38,24 @@ export default function WorkoutTracker() {
     
     setCurrentWorkout(workout);
   }, [today]);
+
+  useEffect(() => {
+    loadTodayWorkout();
+  }, [loadTodayWorkout]);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (isTimerRunning) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isTimerRunning]);
 
   const saveWorkout = (workout: WorkoutDay) => {
     Storage.saveWorkoutDay(workout);
