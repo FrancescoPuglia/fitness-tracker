@@ -40,7 +40,7 @@ describe('unit: WorkoutTracker Component', () => {
 
     render(<WorkoutTracker />);
     
-    const squatCheckbox = await screen.findByRole('checkbox', { name: /squat/i });
+    const squatCheckbox = await screen.findByLabelText('Mark Squat as completed');
     expect(squatCheckbox).not.toBeChecked();
 
     await user.click(squatCheckbox);

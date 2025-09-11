@@ -180,16 +180,13 @@ export default function DietTracker() {
           {currentDiet.meals.map((meal) => (
             <div key={meal.id} className="p-4">
               <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => toggleMeal(meal.id)}
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                    meal.completed
-                      ? 'bg-primary-500 border-primary-500 text-white'
-                      : 'border-gray-300 hover:border-primary-500'
-                  }`}
-                >
-                  {meal.completed && '✓'}
-                </button>
+                <input
+                  type="checkbox"
+                  checked={meal.completed}
+                  onChange={() => toggleMeal(meal.id)}
+                  className="w-5 h-5 rounded border-2 text-primary-500 focus:ring-primary-500"
+                  aria-label={`Mark ${meal.name} as completed`}
+                />
 
                 <div className="flex-1">
                   {isEditing ? (

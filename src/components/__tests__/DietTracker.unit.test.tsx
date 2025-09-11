@@ -38,7 +38,7 @@ describe('unit: DietTracker Component', () => {
 
     render(<DietTracker />);
     
-    const breakfastCheckbox = await screen.findByRole('checkbox', { name: /breakfast/i });
+    const breakfastCheckbox = await screen.findByLabelText('Mark Breakfast as completed');
     await user.click(breakfastCheckbox);
     
     await waitFor(() => {

@@ -234,16 +234,13 @@ export default function WorkoutTracker() {
           {currentWorkout.exercises.map((exercise) => (
             <div key={exercise.id} className="p-4">
               <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => toggleExercise(exercise.id)}
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                    exercise.completed
-                      ? 'bg-primary-500 border-primary-500 text-white'
-                      : 'border-gray-300 hover:border-primary-500'
-                  }`}
-                >
-                  {exercise.completed && '✓'}
-                </button>
+                <input
+                  type="checkbox"
+                  checked={exercise.completed}
+                  onChange={() => toggleExercise(exercise.id)}
+                  className="w-5 h-5 rounded border-2 text-primary-500 focus:ring-primary-500"
+                  aria-label={`Mark ${exercise.name} as completed`}
+                />
 
                 <div className="flex-1">
                   {isEditing ? (
