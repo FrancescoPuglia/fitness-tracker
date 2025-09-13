@@ -2,10 +2,13 @@ export interface Exercise {
   id: string;
   name: string;
   sets?: number;
-  reps?: number;
+  reps?: number | string;
   weight?: number;
   notes?: string;
   completed: boolean;
+  rir?: string; // Reps in Reserve (es. "1-2", "3-4")
+  restTime?: string; // Tempo di riposo (es. "2min", "90s")
+  targetReps?: string | number; // Target reps originale (es. "6-8", "12-15")
 }
 
 export interface WorkoutDay {

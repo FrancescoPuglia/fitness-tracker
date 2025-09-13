@@ -93,7 +93,7 @@ export default function WorkoutTracker() {
         Storage.savePersonalRecord({
           exerciseName: exercise.name,
           weight: value,
-          reps: exercise.reps,
+          reps: typeof exercise.reps === 'number' ? exercise.reps : parseInt(exercise.reps as string) || 0,
           date: today
         });
       }
