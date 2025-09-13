@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Exercise, WorkoutDay } from '../types';
-import { Storage } from '../storage';
-import { formatDate, formatDisplayDate, generateId } from '../utils';
+import { formatDate, formatDisplayDate } from '../utils';
 
 // Scheda settimanale specifica
 const WEEKLY_WORKOUT_PLAN: Record<
@@ -447,8 +445,27 @@ const WEEKLY_WORKOUT_PLAN: Record<
   },
 };
 
+interface WorkoutExercise {
+  id: string;
+  name: string;
+  sets: number;
+  reps: number;
+  weight: number;
+  rir: string;
+  restTime: string;
+  targetReps: string;
+  completed: boolean;
+  notes?: string;
+}
+
+interface WorkoutData {
+  date: string;
+  exercises: WorkoutExercise[];
+  duration: number;
+}
+
 export default function NewWorkoutTracker() {
-  const [currentWorkout, setCurrentWorkout] = useState<WorkoutDay | null>(null);
+  const [currentWorkout, setCurrentWorkout] = useState<WorkoutData | null>(null);
   const [timer, setTimer] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [restTimer, setRestTimer] = useState(0);
@@ -460,15 +477,18 @@ export default function NewWorkoutTracker() {
   const todayPlan = WEEKLY_WORKOUT_PLAN[currentDay];
 
   const loadTodayWorkout = useCallback(() => {
-    let workout = Storage.getWorkoutDay(today);
-
-    if (!workout) {
-      // Usa la scheda del giorno corrente
+    // Carica dal localStorage (compatibile con streakCalculator)
+    const saved = localStorage.getItem(`workout_${today}`);
+    let workout;
+    
+    if (saved) {
+      workout = JSON.parse(saved);
+    } else {
+      // Crea nuovo workout usando la scheda del giorno
       workout = {
-        id: generateId(),
         date: today,
-        exercises: todayPlan.exercises.map((ex) => ({
-          id: generateId(),
+        exercises: todayPlan.exercises.map((ex, index) => ({
+          id: `${today}_${index}`,
           name: ex.name,
           sets: ex.sets,
           reps: typeof ex.reps === 'string' ? 0 : ex.reps,
@@ -529,8 +549,9 @@ export default function NewWorkoutTracker() {
     };
   }, [isRestTimerRunning, restTimer]);
 
-  const saveWorkout = (workout: WorkoutDay) => {
-    Storage.saveWorkoutDay(workout);
+  const saveWorkout = (workout: any) => {
+    // Salva nel localStorage (compatibile con streakCalculator)
+    localStorage.setItem(`workout_${today}`, JSON.stringify(workout));
     setCurrentWorkout(workout);
   };
 
@@ -549,7 +570,7 @@ export default function NewWorkoutTracker() {
 
   const updateExercise = (
     exerciseId: string,
-    field: keyof Exercise,
+    field: keyof WorkoutExercise,
     value: string | number | boolean
   ) => {
     if (!currentWorkout) return;
@@ -563,21 +584,14 @@ export default function NewWorkoutTracker() {
 
     saveWorkout(updatedWorkout);
 
-    // Salva PR se peso migliorato
+    // Salva PR se peso migliorato (implementazione futura)
     if (field === 'weight' && typeof value === 'number' && value > 0) {
       const exercise = updatedWorkout.exercises.find(
         (ex) => ex.id === exerciseId
       );
       if (exercise && exercise.reps) {
-        Storage.savePersonalRecord({
-          exerciseName: exercise.name,
-          weight: value,
-          reps:
-            typeof exercise.reps === 'number'
-              ? exercise.reps
-              : parseInt(exercise.reps as string) || 0,
-          date: today,
-        });
+        // TODO: Implementare sistema PR con localStorage
+        console.log(`PR potenziale: ${exercise.name} - ${value}kg`);
       }
     }
   };
