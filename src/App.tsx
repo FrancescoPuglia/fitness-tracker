@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Dashboard from './components/Dashboard';
 import WorkoutTracker from './components/NewWorkoutTracker';
-import DietTracker from './components/DietTracker';
+import DietTracker from './components/NewDietTracker';
 import Calendar from './components/Calendar';
 import Statistics from './components/Statistics';
 import Settings from './components/Settings';
@@ -11,7 +11,9 @@ type Tab = 'dashboard' | 'workout' | 'diet' | 'calendar' | 'stats' | 'settings';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
-  const [currentQuote, setCurrentQuote] = useState(MOTIVATIONAL_QUOTES[new Date().getDay()]);
+  const [currentQuote, setCurrentQuote] = useState(
+    MOTIVATIONAL_QUOTES[new Date().getDay()]
+  );
 
   useEffect(() => {
     // Aggiorna la quote ogni giorno
@@ -25,13 +27,19 @@ function App() {
     { id: 'diet', label: '🍽️ FUEL', icon: '🥗' },
     { id: 'calendar', label: '📅 TRACK', icon: '📊' },
     { id: 'stats', label: '📈 DOMINATE', icon: '📈' },
-    { id: 'settings', label: '⚙️ CONFIG', icon: '⚙️' }
+    { id: 'settings', label: '⚙️ CONFIG', icon: '⚙️' },
   ] as const;
+
+  const handleNavigate = (tab: string) => {
+    setActiveTab(tab as Tab);
+  };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard currentQuote={currentQuote} />;
+        return (
+          <Dashboard currentQuote={currentQuote} onNavigate={handleNavigate} />
+        );
       case 'workout':
         return <WorkoutTracker />;
       case 'diet':
@@ -43,7 +51,9 @@ function App() {
       case 'settings':
         return <Settings />;
       default:
-        return <Dashboard currentQuote={currentQuote} />;
+        return (
+          <Dashboard currentQuote={currentQuote} onNavigate={handleNavigate} />
+        );
     }
   };
 
@@ -83,9 +93,7 @@ function App() {
         </div>
       </nav>
 
-      <main className="max-w-6xl mx-auto px-4 py-6">
-        {renderContent()}
-      </main>
+      <main className="max-w-6xl mx-auto px-4 py-6">{renderContent()}</main>
     </div>
   );
 }

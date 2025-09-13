@@ -18,7 +18,7 @@ export default function Calendar() {
   const loadCalendarData = useCallback(() => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startOfWeek = new Date(firstDay);
@@ -34,12 +34,13 @@ export default function Calendar() {
       const workout = Storage.getWorkoutDay(dateString);
       const diet = Storage.getDietDay(dateString);
 
-      const workoutCompletion = workout 
-        ? workout.exercises.filter(ex => ex.completed).length / workout.exercises.length 
+      const workoutCompletion = workout
+        ? workout.exercises.filter((ex) => ex.completed).length /
+          workout.exercises.length
         : 0;
-      
-      const dietCompletion = diet 
-        ? diet.meals.filter(meal => meal.completed).length / diet.meals.length 
+
+      const dietCompletion = diet
+        ? diet.meals.filter((meal) => meal.completed).length / diet.meals.length
         : 0;
 
       data.push({
@@ -47,7 +48,7 @@ export default function Calendar() {
         hasWorkout: workoutCompletion > 0,
         hasDiet: dietCompletion > 0,
         workoutCompletion,
-        dietCompletion
+        dietCompletion,
       });
 
       current.setDate(current.getDate() + 1);
@@ -61,7 +62,7 @@ export default function Calendar() {
   }, [currentDate, loadCalendarData]);
 
   const navigateMonth = (direction: 'prev' | 'next') => {
-    setCurrentDate(prev => {
+    setCurrentDate((prev) => {
       const newDate = new Date(prev);
       newDate.setMonth(prev.getMonth() + (direction === 'next' ? 1 : -1));
       return newDate;
@@ -86,9 +87,10 @@ export default function Calendar() {
       const checkDate = new Date(today);
       checkDate.setDate(today.getDate() + i);
       const dateString = formatDate(checkDate);
-      
-      const workout = workouts.find(w => w.date === dateString);
-      const hasCompleted = workout && workout.exercises.some(ex => ex.completed);
+
+      const workout = workouts.find((w) => w.date === dateString);
+      const hasCompleted =
+        workout && workout.exercises.some((ex) => ex.completed);
 
       if (hasCompleted) {
         if (i === 0 || streak > 0) {
@@ -105,7 +107,10 @@ export default function Calendar() {
   };
 
   const weekDays = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
-  const monthName = currentDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+  const monthName = currentDate.toLocaleDateString('it-IT', {
+    month: 'long',
+    year: 'numeric',
+  });
   const currentStreak = calculateStreak();
 
   return (
@@ -117,13 +122,15 @@ export default function Calendar() {
               {monthName}
             </h2>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-500">{currentStreak}</div>
+              <div className="text-2xl font-bold text-orange-500">
+                {currentStreak}
+              </div>
               <div className="text-sm text-gray-600">Streak giorni</div>
             </div>
-            
+
             <div className="flex space-x-2">
               <button
                 onClick={() => navigateMonth('prev')}
@@ -142,16 +149,19 @@ export default function Calendar() {
         </div>
 
         <div className="grid grid-cols-7 gap-1">
-          {weekDays.map(day => (
-            <div key={day} className="text-center text-sm font-medium text-gray-500 p-2">
+          {weekDays.map((day) => (
+            <div
+              key={day}
+              className="text-center text-sm font-medium text-gray-500 p-2"
+            >
               {day}
             </div>
           ))}
-          
+
           {calendarData.map((dayData) => {
             const date = new Date(dayData.date);
             const dayNumber = date.getDate();
-            
+
             return (
               <button
                 key={dayData.date}
@@ -163,21 +173,27 @@ export default function Calendar() {
                 `}
               >
                 <span className="relative z-10">{dayNumber}</span>
-                
+
                 <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex space-x-1">
                   {dayData.hasWorkout && (
-                    <div 
+                    <div
                       className={`w-2 h-2 rounded-full ${
-                        dayData.workoutCompletion >= 0.7 ? 'bg-green-500' : 
-                        dayData.workoutCompletion >= 0.3 ? 'bg-yellow-500' : 'bg-red-500'
+                        dayData.workoutCompletion >= 0.7
+                          ? 'bg-green-500'
+                          : dayData.workoutCompletion >= 0.3
+                            ? 'bg-yellow-500'
+                            : 'bg-red-500'
                       }`}
                     />
                   )}
                   {dayData.hasDiet && (
-                    <div 
+                    <div
                       className={`w-2 h-2 rounded-full ${
-                        dayData.dietCompletion >= 0.7 ? 'bg-blue-500' : 
-                        dayData.dietCompletion >= 0.3 ? 'bg-yellow-500' : 'bg-red-500'
+                        dayData.dietCompletion >= 0.7
+                          ? 'bg-blue-500'
+                          : dayData.dietCompletion >= 0.3
+                            ? 'bg-yellow-500'
+                            : 'bg-red-500'
                       }`}
                     />
                   )}
@@ -208,24 +224,29 @@ export default function Calendar() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             {formatDisplayDate(selectedDay.date)}
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h4 className="font-medium text-gray-900 mb-2">Allenamento</h4>
               {selectedDay.hasWorkout ? (
                 <div>
                   <div className="text-sm text-gray-600 mb-2">
-                    Completamento: {Math.round(selectedDay.workoutCompletion * 100)}%
+                    Completamento:{' '}
+                    {Math.round(selectedDay.workoutCompletion * 100)}%
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-green-500 h-2 rounded-full"
-                      style={{ width: `${selectedDay.workoutCompletion * 100}%` }}
+                      style={{
+                        width: `${selectedDay.workoutCompletion * 100}%`,
+                      }}
                     />
                   </div>
                 </div>
               ) : (
-                <div className="text-sm text-gray-500">Nessun allenamento registrato</div>
+                <div className="text-sm text-gray-500">
+                  Nessun allenamento registrato
+                </div>
               )}
             </div>
 
@@ -234,7 +255,8 @@ export default function Calendar() {
               {selectedDay.hasDiet ? (
                 <div>
                   <div className="text-sm text-gray-600 mb-2">
-                    Pasti completati: {Math.round(selectedDay.dietCompletion * 100)}%
+                    Pasti completati:{' '}
+                    {Math.round(selectedDay.dietCompletion * 100)}%
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
@@ -244,7 +266,9 @@ export default function Calendar() {
                   </div>
                 </div>
               ) : (
-                <div className="text-sm text-gray-500">Nessuna dieta registrata</div>
+                <div className="text-sm text-gray-500">
+                  Nessuna dieta registrata
+                </div>
               )}
             </div>
           </div>

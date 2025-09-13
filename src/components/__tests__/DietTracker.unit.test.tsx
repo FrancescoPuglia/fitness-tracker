@@ -9,7 +9,7 @@ vi.mock('../../storage', () => ({
   Storage: {
     getDietDay: vi.fn(),
     saveDietDay: vi.fn(),
-  }
+  },
 }));
 
 const mockedStorage = vi.mocked(Storage);
@@ -25,7 +25,7 @@ describe('unit: DietTracker Component', () => {
     mockedStorage.getDietDay.mockReturnValue(dietDay);
 
     render(<DietTracker />);
-    
+
     expect(await screen.findByText('Breakfast')).toBeInTheDocument();
     expect(await screen.findByText('Lunch')).toBeInTheDocument();
     expect(screen.getByText('0 / 2 pasti completati')).toBeInTheDocument();
@@ -37,19 +37,21 @@ describe('unit: DietTracker Component', () => {
     mockedStorage.getDietDay.mockReturnValue(dietDay);
 
     render(<DietTracker />);
-    
-    const breakfastCheckbox = await screen.findByLabelText('Mark Breakfast as completed');
+
+    const breakfastCheckbox = await screen.findByLabelText(
+      'Mark Breakfast as completed'
+    );
     await user.click(breakfastCheckbox);
-    
+
     await waitFor(() => {
       expect(mockedStorage.saveDietDay).toHaveBeenCalledWith(
         expect.objectContaining({
           meals: expect.arrayContaining([
             expect.objectContaining({
               name: 'Breakfast',
-              completed: true
-            })
-          ])
+              completed: true,
+            }),
+          ]),
         })
       );
     });
@@ -62,7 +64,7 @@ describe('unit: DietTracker Component', () => {
     mockedStorage.getDietDay.mockReturnValue(dietDay);
 
     render(<DietTracker />);
-    
+
     // Should show calories from completed meal only
     expect(await screen.findByText('400')).toBeInTheDocument(); // calories
     expect(screen.getByText('20g')).toBeInTheDocument(); // protein
@@ -75,22 +77,22 @@ describe('unit: DietTracker Component', () => {
     mockedStorage.getDietDay.mockReturnValue(seedDietData());
 
     render(<DietTracker />);
-    
+
     const editButton = await screen.findByRole('button', { name: /modifica/i });
     await user.click(editButton);
-    
+
     const caloriesInput = await screen.findByDisplayValue('400');
     await user.clear(caloriesInput);
     await user.type(caloriesInput, '450');
-    
+
     await waitFor(() => {
       expect(mockedStorage.saveDietDay).toHaveBeenCalledWith(
         expect.objectContaining({
           meals: expect.arrayContaining([
             expect.objectContaining({
-              calories: 450
-            })
-          ])
+              calories: 450,
+            }),
+          ]),
         })
       );
     });

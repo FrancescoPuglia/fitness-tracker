@@ -1,4 +1,9 @@
 import { useState, useEffect } from 'react';
+import {
+  calculateOverallStreak,
+  calculateWorkoutStreak,
+  calculateDietStreak,
+} from '../utils/streakCalculator';
 
 interface DashboardProps {
   currentQuote: {
@@ -6,10 +11,16 @@ interface DashboardProps {
     author: string;
     image: string;
   };
+  onNavigate: (tab: string) => void;
 }
 
-export default function Dashboard({ currentQuote }: DashboardProps) {
-  const [streak] = useState(7); // Mock data - will be real later
+export default function Dashboard({
+  currentQuote,
+  onNavigate,
+}: DashboardProps) {
+  const [streak, setStreak] = useState(0);
+  const [workoutStreak, setWorkoutStreak] = useState(0);
+  const [dietStreak, setDietStreak] = useState(0);
   const [workoutTime, setWorkoutTime] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -19,7 +30,7 @@ export default function Dashboard({ currentQuote }: DashboardProps) {
     let interval: NodeJS.Timeout;
     if (isTimerRunning) {
       interval = setInterval(() => {
-        setWorkoutTime(prev => prev + 1);
+        setWorkoutTime((prev) => prev + 1);
       }, 1000);
     }
     return () => clearInterval(interval);
@@ -33,6 +44,21 @@ export default function Dashboard({ currentQuote }: DashboardProps) {
     return () => clearInterval(interval);
   }, []);
 
+  // Calcola streak reali
+  useEffect(() => {
+    const updateStreaks = () => {
+      setStreak(calculateOverallStreak());
+      setWorkoutStreak(calculateWorkoutStreak());
+      setDietStreak(calculateDietStreak());
+    };
+
+    updateStreaks();
+
+    // Aggiorna ogni 30 secondi per catturare nuovi progressi
+    const interval = setInterval(updateStreaks, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -42,8 +68,13 @@ export default function Dashboard({ currentQuote }: DashboardProps) {
 
   const getDayName = (): string => {
     const days: Record<number, string> = {
-      0: 'Domenica', 1: 'Lunedì', 2: 'Martedì', 3: 'Mercoledì', 
-      4: 'Giovedì', 5: 'Venerdì', 6: 'Sabato'
+      0: 'Domenica',
+      1: 'Lunedì',
+      2: 'Martedì',
+      3: 'Mercoledì',
+      4: 'Giovedì',
+      5: 'Venerdì',
+      6: 'Sabato',
     };
     return days[currentTime.getDay()];
   };
@@ -56,7 +87,7 @@ export default function Dashboard({ currentQuote }: DashboardProps) {
       3: '🦵 GAMBE COMPLETE - Leg Destruction Day',
       4: '🚶 RECUPERO ATTIVO - Active Recovery',
       5: '👑 SPALLE + COLLO - Shoulder Domination',
-      6: '🔥 POSTERIORI + CONDITIONING - Posterior Chain'
+      6: '🔥 POSTERIORI + CONDITIONING - Posterior Chain',
     };
     return plans[currentTime.getDay()];
   };
@@ -64,12 +95,12 @@ export default function Dashboard({ currentQuote }: DashboardProps) {
   return (
     <div className="space-y-6">
       {/* Hero Section con Quote Motivazionale */}
-      <div 
+      <div
         className="relative h-96 rounded-3xl overflow-hidden shadow-2xl"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.4)), url(${currentQuote.image})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center'
+          backgroundPosition: 'center',
         }}
       >
         <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-8">
@@ -78,13 +109,13 @@ export default function Dashboard({ currentQuote }: DashboardProps) {
               {getDayName().toUpperCase()}
             </h2>
             <div className="text-white text-6xl font-bold">
-              {currentTime.toLocaleTimeString('it-IT', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+              {currentTime.toLocaleTimeString('it-IT', {
+                hour: '2-digit',
+                minute: '2-digit',
               })}
             </div>
           </div>
-          
+
           <blockquote className="text-white text-2xl md:text-3xl font-bold mb-4 max-w-4xl leading-tight">
             "{currentQuote.quote}"
           </blockquote>
@@ -154,12 +185,8 @@ export default function Dashboard({ currentQuote }: DashboardProps) {
             <span className="text-3xl">💪</span>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold mb-2">
-              {getWorkoutPlan()}
-            </div>
-            <div className="text-sm opacity-90">
-              Ready to dominate? 💯
-            </div>
+            <div className="text-lg font-bold mb-2">{getWorkoutPlan()}</div>
+            <div className="text-sm opacity-90">Ready to dominate? 💯</div>
           </div>
         </div>
       </div>
@@ -171,29 +198,41 @@ export default function Dashboard({ currentQuote }: DashboardProps) {
           QUICK ACTIONS
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="bg-gradient-to-br from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-xl p-4 font-bold transition-all transform hover:scale-105 shadow-lg">
+          <button
+            onClick={() => onNavigate('workout')}
+            className="bg-gradient-to-br from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-xl p-4 font-bold transition-all transform hover:scale-105 shadow-lg"
+          >
             <div className="text-2xl mb-2">🏋️</div>
             <div className="text-sm">START WORKOUT</div>
           </button>
-          <button className="bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl p-4 font-bold transition-all transform hover:scale-105 shadow-lg">
+          <button
+            onClick={() => onNavigate('diet')}
+            className="bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl p-4 font-bold transition-all transform hover:scale-105 shadow-lg"
+          >
             <div className="text-2xl mb-2">🍽️</div>
             <div className="text-sm">LOG MEAL</div>
           </button>
-          <button className="bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-xl p-4 font-bold transition-all transform hover:scale-105 shadow-lg">
+          <button
+            onClick={() => onNavigate('stats')}
+            className="bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-xl p-4 font-bold transition-all transform hover:scale-105 shadow-lg"
+          >
             <div className="text-2xl mb-2">📊</div>
             <div className="text-sm">VIEW STATS</div>
           </button>
-          <button className="bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-xl p-4 font-bold transition-all transform hover:scale-105 shadow-lg">
+          <button
+            onClick={() => onNavigate('settings')}
+            className="bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-xl p-4 font-bold transition-all transform hover:scale-105 shadow-lg"
+          >
             <div className="text-2xl mb-2">🎯</div>
-            <div className="text-sm">SET GOALS</div>
+            <div className="text-sm">SETTINGS</div>
           </button>
         </div>
       </div>
 
-      {/* Progress Rings */}
+      {/* Progress Rings con dati reali */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 text-center">
-          <h4 className="text-white font-bold mb-4">WEEKLY PROGRESS</h4>
+          <h4 className="text-white font-bold mb-4">WORKOUT STREAK</h4>
           <div className="relative w-32 h-32 mx-auto">
             <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
               <path
@@ -205,21 +244,23 @@ export default function Dashboard({ currentQuote }: DashboardProps) {
               <path
                 d="m18,2.0845 a 15.9155,15.9155 0 0,1 0,31.831 a 15.9155,15.9155 0 0,1 0,-31.831"
                 fill="none"
-                stroke="#10B981"
+                stroke="#EF4444"
                 strokeWidth="2"
-                strokeDasharray="75, 100"
+                strokeDasharray={`${Math.min((workoutStreak / 7) * 100, 100)}, 100`}
                 strokeLinecap="round"
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">75%</span>
+              <span className="text-2xl font-bold text-white">
+                {workoutStreak}
+              </span>
             </div>
           </div>
-          <div className="text-gray-300 text-sm mt-2">5/7 workouts</div>
+          <div className="text-gray-300 text-sm mt-2">giorni consecutivi</div>
         </div>
 
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 text-center">
-          <h4 className="text-white font-bold mb-4">DIET COMPLIANCE</h4>
+          <h4 className="text-white font-bold mb-4">DIET STREAK</h4>
           <div className="relative w-32 h-32 mx-auto">
             <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
               <path
@@ -233,19 +274,21 @@ export default function Dashboard({ currentQuote }: DashboardProps) {
                 fill="none"
                 stroke="#3B82F6"
                 strokeWidth="2"
-                strokeDasharray="88, 100"
+                strokeDasharray={`${Math.min((dietStreak / 7) * 100, 100)}, 100`}
                 strokeLinecap="round"
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">88%</span>
+              <span className="text-2xl font-bold text-white">
+                {dietStreak}
+              </span>
             </div>
           </div>
-          <div className="text-gray-300 text-sm mt-2">Great discipline!</div>
+          <div className="text-gray-300 text-sm mt-2">giorni disciplina</div>
         </div>
 
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 text-center">
-          <h4 className="text-white font-bold mb-4">MONTHLY GOAL</h4>
+          <h4 className="text-white font-bold mb-4">OVERALL STREAK</h4>
           <div className="relative w-32 h-32 mx-auto">
             <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
               <path
@@ -257,17 +300,17 @@ export default function Dashboard({ currentQuote }: DashboardProps) {
               <path
                 d="m18,2.0845 a 15.9155,15.9155 0 0,1 0,31.831 a 15.9155,15.9155 0 0,1 0,-31.831"
                 fill="none"
-                stroke="#F59E0B"
+                stroke="#10B981"
                 strokeWidth="2"
-                strokeDasharray="65, 100"
+                strokeDasharray={`${Math.min((streak / 30) * 100, 100)}, 100`}
                 strokeLinecap="round"
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">65%</span>
+              <span className="text-2xl font-bold text-white">{streak}</span>
             </div>
           </div>
-          <div className="text-gray-300 text-sm mt-2">13/20 workouts</div>
+          <div className="text-gray-300 text-sm mt-2">streak totale</div>
         </div>
       </div>
     </div>

@@ -7,7 +7,7 @@ export const formatDisplayDate = (date: string): string => {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   });
 };
 

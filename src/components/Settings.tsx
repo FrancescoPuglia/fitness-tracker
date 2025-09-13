@@ -4,7 +4,9 @@ import { downloadFile } from '../utils';
 
 export default function Settings() {
   const [showConfirm, setShowConfirm] = useState(false);
-  const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [importStatus, setImportStatus] = useState<
+    'idle' | 'success' | 'error'
+  >('idle');
 
   const handleExport = () => {
     const data = Storage.exportData();
@@ -21,7 +23,7 @@ export default function Settings() {
       try {
         const content = e.target?.result as string;
         const success = Storage.importData(content);
-        
+
         if (success) {
           setImportStatus('success');
           setTimeout(() => {
@@ -33,11 +35,11 @@ export default function Settings() {
       } catch {
         setImportStatus('error');
       }
-      
+
       setTimeout(() => setImportStatus('idle'), 3000);
     };
     reader.readAsText(file);
-    
+
     event.target.value = '';
   };
 
@@ -61,7 +63,7 @@ export default function Settings() {
       workouts: workouts.length,
       diets: diets.length,
       records: records.length,
-      totalSize: new Blob([Storage.exportData()]).size
+      totalSize: new Blob([Storage.exportData()]).size,
     };
   };
 
@@ -70,12 +72,16 @@ export default function Settings() {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Impostazioni</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">
+          Impostazioni
+        </h2>
 
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Backup e Ripristino</h3>
-            
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Backup e Ripristino
+            </h3>
+
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                 <div>
@@ -105,7 +111,8 @@ export default function Settings() {
                   )}
                   {importStatus === 'error' && (
                     <div className="text-sm text-red-600 mt-1">
-                      ✗ Errore durante l'importazione. Controlla il formato del file.
+                      ✗ Errore durante l'importazione. Controlla il formato del
+                      file.
                     </div>
                   )}
                 </div>
@@ -122,20 +129,23 @@ export default function Settings() {
 
               <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
                 <div>
-                  <div className="font-medium text-gray-900">Cancella Tutti i Dati</div>
+                  <div className="font-medium text-gray-900">
+                    Cancella Tutti i Dati
+                  </div>
                   <div className="text-sm text-gray-600">
                     Rimuovi permanentemente tutti i dati salvati
                   </div>
                   {showConfirm && (
                     <div className="text-sm text-orange-600 mt-1">
-                      ⚠️ Clicca di nuovo per confermare la cancellazione definitiva
+                      ⚠️ Clicca di nuovo per confermare la cancellazione
+                      definitiva
                     </div>
                   )}
                 </div>
                 <button
                   onClick={handleReset}
                   className={`px-4 py-2 rounded-lg ${
-                    showConfirm 
+                    showConfirm
                       ? 'bg-red-600 text-white hover:bg-red-700'
                       : 'bg-red-500 text-white hover:bg-red-600'
                   }`}
@@ -147,21 +157,29 @@ export default function Settings() {
           </div>
 
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Informazioni Storage</h3>
-            
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Informazioni Storage
+            </h3>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-primary-600">{storageInfo.workouts}</div>
+                <div className="text-2xl font-bold text-primary-600">
+                  {storageInfo.workouts}
+                </div>
                 <div className="text-sm text-gray-600">Allenamenti</div>
               </div>
-              
+
               <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{storageInfo.diets}</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {storageInfo.diets}
+                </div>
                 <div className="text-sm text-gray-600">Piani dieta</div>
               </div>
 
               <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">{storageInfo.records}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {storageInfo.records}
+                </div>
                 <div className="text-sm text-gray-600">Record personali</div>
               </div>
 
@@ -175,19 +193,24 @@ export default function Settings() {
           </div>
 
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Informazioni App</h3>
-            
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Informazioni App
+            </h3>
+
             <div className="p-4 bg-gray-50 rounded-lg">
               <div className="text-sm text-gray-600 space-y-2">
                 <div>
                   <strong>Fitness Tracker</strong> - Versione 1.0.0
                 </div>
                 <div>
-                  Un'applicazione semplice e potente per tracciare allenamenti, dieta e progressi.
-                  Tutti i dati sono salvati localmente nel browser per la massima privacy.
+                  Un'applicazione semplice e potente per tracciare allenamenti,
+                  dieta e progressi. Tutti i dati sono salvati localmente nel
+                  browser per la massima privacy.
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-300">
-                  <div className="font-medium text-gray-700 mb-2">Funzionalità:</div>
+                  <div className="font-medium text-gray-700 mb-2">
+                    Funzionalità:
+                  </div>
                   <ul className="text-sm space-y-1">
                     <li>• Tracciamento allenamenti con timer</li>
                     <li>• Pianificazione e monitoraggio dieta</li>

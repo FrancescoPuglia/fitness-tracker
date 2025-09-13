@@ -7,9 +7,15 @@ const defaultMeals: Omit<Meal, 'id' | 'completed'>[] = [
   { name: 'Colazione', calories: 400, protein: 20, carbs: 40, fat: 15 },
   { name: 'Spuntino Mattina', calories: 200, protein: 10, carbs: 20, fat: 8 },
   { name: 'Pranzo', calories: 600, protein: 35, carbs: 60, fat: 20 },
-  { name: 'Spuntino Pomeriggio', calories: 250, protein: 15, carbs: 25, fat: 10 },
+  {
+    name: 'Spuntino Pomeriggio',
+    calories: 250,
+    protein: 15,
+    carbs: 25,
+    fat: 10,
+  },
   { name: 'Cena', calories: 550, protein: 40, carbs: 45, fat: 18 },
-  { name: 'Spuntino Sera', calories: 150, protein: 8, carbs: 15, fat: 6 }
+  { name: 'Spuntino Sera', calories: 150, protein: 8, carbs: 15, fat: 6 },
 ];
 
 export default function DietTracker() {
@@ -20,19 +26,19 @@ export default function DietTracker() {
 
   const loadTodayDiet = useCallback(() => {
     let diet = Storage.getDietDay(today);
-    
+
     if (!diet) {
       diet = {
         id: generateId(),
         date: today,
-        meals: defaultMeals.map(meal => ({
+        meals: defaultMeals.map((meal) => ({
           id: generateId(),
           ...meal,
-          completed: false
-        }))
+          completed: false,
+        })),
       };
     }
-    
+
     setCurrentDiet(diet);
   }, [today]);
 
@@ -50,22 +56,26 @@ export default function DietTracker() {
 
     const updatedDiet = {
       ...currentDiet,
-      meals: currentDiet.meals.map(meal => 
+      meals: currentDiet.meals.map((meal) =>
         meal.id === mealId ? { ...meal, completed: !meal.completed } : meal
-      )
+      ),
     };
 
     saveDiet(updatedDiet);
   };
 
-  const updateMeal = (mealId: string, field: keyof Meal, value: string | number | boolean) => {
+  const updateMeal = (
+    mealId: string,
+    field: keyof Meal,
+    value: string | number | boolean
+  ) => {
     if (!currentDiet) return;
 
     const updatedDiet = {
       ...currentDiet,
-      meals: currentDiet.meals.map(meal => 
+      meals: currentDiet.meals.map((meal) =>
         meal.id === mealId ? { ...meal, [field]: value } : meal
-      )
+      ),
     };
 
     saveDiet(updatedDiet);
@@ -81,12 +91,12 @@ export default function DietTracker() {
       protein: 20,
       carbs: 30,
       fat: 10,
-      completed: false
+      completed: false,
     };
 
     const updatedDiet = {
       ...currentDiet,
-      meals: [...currentDiet.meals, newMeal]
+      meals: [...currentDiet.meals, newMeal],
     };
 
     saveDiet(updatedDiet);
@@ -97,21 +107,40 @@ export default function DietTracker() {
 
     const updatedDiet = {
       ...currentDiet,
-      meals: currentDiet.meals.filter(meal => meal.id !== mealId)
+      meals: currentDiet.meals.filter((meal) => meal.id !== mealId),
     };
 
     saveDiet(updatedDiet);
   };
 
-  const completedCount = currentDiet?.meals.filter(meal => meal.completed).length || 0;
+  const completedCount =
+    currentDiet?.meals.filter((meal) => meal.completed).length || 0;
   const totalCount = currentDiet?.meals.length || 0;
-  
-  const totalCalories = currentDiet?.meals.reduce((sum, meal) => meal.completed ? sum + (meal.calories || 0) : sum, 0) || 0;
-  const totalProtein = currentDiet?.meals.reduce((sum, meal) => meal.completed ? sum + (meal.protein || 0) : sum, 0) || 0;
-  const totalCarbs = currentDiet?.meals.reduce((sum, meal) => meal.completed ? sum + (meal.carbs || 0) : sum, 0) || 0;
-  const totalFat = currentDiet?.meals.reduce((sum, meal) => meal.completed ? sum + (meal.fat || 0) : sum, 0) || 0;
 
-  const plannedCalories = currentDiet?.meals.reduce((sum, meal) => sum + (meal.calories || 0), 0) || 0;
+  const totalCalories =
+    currentDiet?.meals.reduce(
+      (sum, meal) => (meal.completed ? sum + (meal.calories || 0) : sum),
+      0
+    ) || 0;
+  const totalProtein =
+    currentDiet?.meals.reduce(
+      (sum, meal) => (meal.completed ? sum + (meal.protein || 0) : sum),
+      0
+    ) || 0;
+  const totalCarbs =
+    currentDiet?.meals.reduce(
+      (sum, meal) => (meal.completed ? sum + (meal.carbs || 0) : sum),
+      0
+    ) || 0;
+  const totalFat =
+    currentDiet?.meals.reduce(
+      (sum, meal) => (meal.completed ? sum + (meal.fat || 0) : sum),
+      0
+    ) || 0;
+
+  const plannedCalories =
+    currentDiet?.meals.reduce((sum, meal) => sum + (meal.calories || 0), 0) ||
+    0;
 
   if (!currentDiet) {
     return <div className="text-center py-8">Caricamento...</div>;
@@ -129,7 +158,7 @@ export default function DietTracker() {
               {completedCount} / {totalCount} pasti completati
             </p>
           </div>
-          
+
           <div className="text-right">
             <div className="text-2xl font-bold text-gray-900">
               {totalCalories} / {plannedCalories}
@@ -140,19 +169,27 @@ export default function DietTracker() {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div className="text-center">
-            <div className="text-lg font-semibold text-gray-900">{totalCalories}</div>
+            <div className="text-lg font-semibold text-gray-900">
+              {totalCalories}
+            </div>
             <div className="text-sm text-gray-600">Calorie</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-semibold text-blue-600">{totalProtein}g</div>
+            <div className="text-lg font-semibold text-blue-600">
+              {totalProtein}g
+            </div>
             <div className="text-sm text-gray-600">Proteine</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-semibold text-orange-600">{totalCarbs}g</div>
+            <div className="text-lg font-semibold text-orange-600">
+              {totalCarbs}g
+            </div>
             <div className="text-sm text-gray-600">Carboidrati</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-semibold text-yellow-600">{totalFat}g</div>
+            <div className="text-lg font-semibold text-yellow-600">
+              {totalFat}g
+            </div>
             <div className="text-sm text-gray-600">Grassi</div>
           </div>
         </div>
@@ -160,7 +197,9 @@ export default function DietTracker() {
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className="bg-primary-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}
+            style={{
+              width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%`,
+            }}
           />
         </div>
       </div>
@@ -193,32 +232,48 @@ export default function DietTracker() {
                     <input
                       type="text"
                       value={meal.name}
-                      onChange={(e) => updateMeal(meal.id, 'name', e.target.value)}
+                      onChange={(e) =>
+                        updateMeal(meal.id, 'name', e.target.value)
+                      }
                       className="font-medium text-gray-900 bg-transparent border-b border-gray-300 focus:border-primary-500 outline-none"
                     />
                   ) : (
-                    <div className={`font-medium ${meal.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                    <div
+                      className={`font-medium ${meal.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}
+                    >
                       {meal.name}
                     </div>
                   )}
-                  
+
                   <div className="flex items-center space-x-4 mt-2 flex-wrap">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-600">Cal:</span>
                       <input
                         type="number"
                         value={meal.calories || ''}
-                        onChange={(e) => updateMeal(meal.id, 'calories', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateMeal(
+                            meal.id,
+                            'calories',
+                            parseInt(e.target.value) || 0
+                          )
+                        }
                         className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary-500"
                       />
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-blue-600">P:</span>
                       <input
                         type="number"
                         value={meal.protein || ''}
-                        onChange={(e) => updateMeal(meal.id, 'protein', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateMeal(
+                            meal.id,
+                            'protein',
+                            parseInt(e.target.value) || 0
+                          )
+                        }
                         className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                       />
                     </div>
@@ -228,7 +283,13 @@ export default function DietTracker() {
                       <input
                         type="number"
                         value={meal.carbs || ''}
-                        onChange={(e) => updateMeal(meal.id, 'carbs', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateMeal(
+                            meal.id,
+                            'carbs',
+                            parseInt(e.target.value) || 0
+                          )
+                        }
                         className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-orange-500"
                       />
                     </div>
@@ -238,7 +299,13 @@ export default function DietTracker() {
                       <input
                         type="number"
                         value={meal.fat || ''}
-                        onChange={(e) => updateMeal(meal.id, 'fat', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateMeal(
+                            meal.id,
+                            'fat',
+                            parseInt(e.target.value) || 0
+                          )
+                        }
                         className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-yellow-500"
                       />
                     </div>
@@ -257,7 +324,9 @@ export default function DietTracker() {
                     <div className="mt-2">
                       <textarea
                         value={meal.notes}
-                        onChange={(e) => updateMeal(meal.id, 'notes', e.target.value)}
+                        onChange={(e) =>
+                          updateMeal(meal.id, 'notes', e.target.value)
+                        }
                         placeholder="Note per il pasto..."
                         className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary-500"
                         rows={2}

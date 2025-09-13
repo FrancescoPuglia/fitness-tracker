@@ -4,106 +4,447 @@ import { Storage } from '../storage';
 import { formatDate, formatDisplayDate, generateId } from '../utils';
 
 // Scheda settimanale specifica
-const WEEKLY_WORKOUT_PLAN: Record<number, {
-  name: string;
-  description: string; 
-  exercises: Array<{
+const WEEKLY_WORKOUT_PLAN: Record<
+  number,
+  {
     name: string;
-    sets: number;
-    reps: string;
-    weight: number;
-    rir: string;
-    rest: string;
-  }>;
-}> = {
-  0: { // Domenica
-    name: "RIPOSO",
-    description: "Recovery Day - Stretching e relax",
-    exercises: []
+    description: string;
+    exercises: Array<{
+      name: string;
+      sets: number;
+      reps: string;
+      weight: number;
+      rir: string;
+      rest: string;
+    }>;
+  }
+> = {
+  0: {
+    // Domenica
+    name: 'RIPOSO',
+    description: 'Recovery Day - Stretching e relax',
+    exercises: [],
   },
-  1: { // Lunedì - Petto + Bicipiti
-    name: "PETTO + BICIPITI",
-    description: "Focus: Petto (fascio alto + globale), Bicipiti",
+  1: {
+    // Lunedì - Petto + Bicipiti
+    name: 'PETTO + BICIPITI',
+    description: 'Focus: Petto (fascio alto + globale), Bicipiti',
     exercises: [
-      { name: 'Panca inclinata bilanciere', sets: 4, reps: '6-8', weight: 0, rir: '1-2', rest: '2min' },
-      { name: 'Spinte manubri inclinata', sets: 3, reps: '8-10', weight: 0, rir: '2-3', rest: '90s' },
-      { name: 'Croci ai cavi alti/inclinata', sets: 3, reps: '12-15', weight: 0, rir: '2-3', rest: '75s' },
-      { name: 'Dip alle parallele (petto)', sets: 3, reps: '8-10', weight: 0, rir: '2-3', rest: '90s' },
-      { name: 'Curl bilanciere', sets: 4, reps: '8-10', weight: 0, rir: '2-3', rest: '90s' },
-      { name: 'Curl manubri inclinati', sets: 3, reps: '10-12', weight: 0, rir: '2-3', rest: '75s' },
-      { name: 'Hammer curl manubri/cavi', sets: 3, reps: '12-15', weight: 0, rir: '2-3', rest: '60s' }
-    ]
+      {
+        name: 'Panca inclinata bilanciere',
+        sets: 4,
+        reps: '6-8',
+        weight: 0,
+        rir: '1-2',
+        rest: '2min',
+      },
+      {
+        name: 'Spinte manubri inclinata',
+        sets: 3,
+        reps: '8-10',
+        weight: 0,
+        rir: '2-3',
+        rest: '90s',
+      },
+      {
+        name: 'Croci ai cavi alti/inclinata',
+        sets: 3,
+        reps: '12-15',
+        weight: 0,
+        rir: '2-3',
+        rest: '75s',
+      },
+      {
+        name: 'Dip alle parallele (petto)',
+        sets: 3,
+        reps: '8-10',
+        weight: 0,
+        rir: '2-3',
+        rest: '90s',
+      },
+      {
+        name: 'Curl bilanciere',
+        sets: 4,
+        reps: '8-10',
+        weight: 0,
+        rir: '2-3',
+        rest: '90s',
+      },
+      {
+        name: 'Curl manubri inclinati',
+        sets: 3,
+        reps: '10-12',
+        weight: 0,
+        rir: '2-3',
+        rest: '75s',
+      },
+      {
+        name: 'Hammer curl manubri/cavi',
+        sets: 3,
+        reps: '12-15',
+        weight: 0,
+        rir: '2-3',
+        rest: '60s',
+      },
+    ],
   },
-  2: { // Martedì - Dorso + Tricipiti + Collo (A)
-    name: "DORSO + TRICIPITI + COLLO (A)",
-    description: "Focus: Larghezza dorsale, spessore scapolare, tricipiti, collo",
+  2: {
+    // Martedì - Dorso + Tricipiti + Collo (A)
+    name: 'DORSO + TRICIPITI + COLLO (A)',
+    description:
+      'Focus: Larghezza dorsale, spessore scapolare, tricipiti, collo',
     exercises: [
-      { name: 'Trazioni presa ampia', sets: 4, reps: '6-8', weight: 0, rir: '1-2', rest: '2min' },
-      { name: 'Rematore bilanciere/manubrio', sets: 4, reps: '8-10', weight: 0, rir: '1-2', rest: '2min' },
-      { name: 'Lat machine inversa/stretta', sets: 3, reps: '10-12', weight: 0, rir: '2-3', rest: '90s' },
-      { name: 'Pullover ai cavi', sets: 3, reps: '12-15', weight: 0, rir: '2-3', rest: '75s' },
-      { name: 'Panca stretta bilanciere', sets: 4, reps: '6-8', weight: 0, rir: '1-2', rest: '2min' },
-      { name: 'French press EZ', sets: 3, reps: '8-10', weight: 0, rir: '2-3', rest: '90s' },
-      { name: 'Pushdown cavo', sets: 3, reps: '12-15', weight: 0, rir: '2-3', rest: '60s' },
-      { name: 'Flessione collo', sets: 2, reps: '15-20', weight: 0, rir: '3-4', rest: '60s' },
-      { name: 'Estensione collo', sets: 2, reps: '15-20', weight: 0, rir: '3-4', rest: '60s' },
-      { name: 'Laterale collo dx/sx', sets: 2, reps: '12-15', weight: 0, rir: '3-4', rest: '60s' }
-    ]
+      {
+        name: 'Trazioni presa ampia',
+        sets: 4,
+        reps: '6-8',
+        weight: 0,
+        rir: '1-2',
+        rest: '2min',
+      },
+      {
+        name: 'Rematore bilanciere/manubrio',
+        sets: 4,
+        reps: '8-10',
+        weight: 0,
+        rir: '1-2',
+        rest: '2min',
+      },
+      {
+        name: 'Lat machine inversa/stretta',
+        sets: 3,
+        reps: '10-12',
+        weight: 0,
+        rir: '2-3',
+        rest: '90s',
+      },
+      {
+        name: 'Pullover ai cavi',
+        sets: 3,
+        reps: '12-15',
+        weight: 0,
+        rir: '2-3',
+        rest: '75s',
+      },
+      {
+        name: 'Panca stretta bilanciere',
+        sets: 4,
+        reps: '6-8',
+        weight: 0,
+        rir: '1-2',
+        rest: '2min',
+      },
+      {
+        name: 'French press EZ',
+        sets: 3,
+        reps: '8-10',
+        weight: 0,
+        rir: '2-3',
+        rest: '90s',
+      },
+      {
+        name: 'Pushdown cavo',
+        sets: 3,
+        reps: '12-15',
+        weight: 0,
+        rir: '2-3',
+        rest: '60s',
+      },
+      {
+        name: 'Flessione collo',
+        sets: 2,
+        reps: '15-20',
+        weight: 0,
+        rir: '3-4',
+        rest: '60s',
+      },
+      {
+        name: 'Estensione collo',
+        sets: 2,
+        reps: '15-20',
+        weight: 0,
+        rir: '3-4',
+        rest: '60s',
+      },
+      {
+        name: 'Laterale collo dx/sx',
+        sets: 2,
+        reps: '12-15',
+        weight: 0,
+        rir: '3-4',
+        rest: '60s',
+      },
+    ],
   },
-  3: { // Mercoledì - Gambe Complete
-    name: "GAMBE COMPLETE",
-    description: "Focus: Quadricipiti, glutei, femorali, polpacci",
+  3: {
+    // Mercoledì - Gambe Complete
+    name: 'GAMBE COMPLETE',
+    description: 'Focus: Quadricipiti, glutei, femorali, polpacci',
     exercises: [
-      { name: 'Squat', sets: 4, reps: '6-8', weight: 0, rir: '1-2', rest: '3min' },
-      { name: 'Hip thrust', sets: 4, reps: '8-10', weight: 0, rir: '2-3', rest: '2min' },
-      { name: 'Affondi camminata', sets: 3, reps: '10 passi/gamba', weight: 0, rir: '2-3', rest: '90s' },
-      { name: 'Leg press 45°', sets: 3, reps: '10-12', weight: 0, rir: '2-3', rest: '90s' },
-      { name: 'Leg curl sdraiato', sets: 3, reps: '10-12', weight: 0, rir: '2-3', rest: '90s' },
-      { name: 'Calf raise in piedi', sets: 4, reps: '10-12', weight: 0, rir: '2-3', rest: '60s' },
-      { name: 'Calf raise seduto', sets: 3, reps: '15-20', weight: 0, rir: '2-3', rest: '60s' }
-    ]
+      {
+        name: 'Squat',
+        sets: 4,
+        reps: '6-8',
+        weight: 0,
+        rir: '1-2',
+        rest: '3min',
+      },
+      {
+        name: 'Hip thrust',
+        sets: 4,
+        reps: '8-10',
+        weight: 0,
+        rir: '2-3',
+        rest: '2min',
+      },
+      {
+        name: 'Affondi camminata',
+        sets: 3,
+        reps: '10 passi/gamba',
+        weight: 0,
+        rir: '2-3',
+        rest: '90s',
+      },
+      {
+        name: 'Leg press 45°',
+        sets: 3,
+        reps: '10-12',
+        weight: 0,
+        rir: '2-3',
+        rest: '90s',
+      },
+      {
+        name: 'Leg curl sdraiato',
+        sets: 3,
+        reps: '10-12',
+        weight: 0,
+        rir: '2-3',
+        rest: '90s',
+      },
+      {
+        name: 'Calf raise in piedi',
+        sets: 4,
+        reps: '10-12',
+        weight: 0,
+        rir: '2-3',
+        rest: '60s',
+      },
+      {
+        name: 'Calf raise seduto',
+        sets: 3,
+        reps: '15-20',
+        weight: 0,
+        rir: '2-3',
+        rest: '60s',
+      },
+    ],
   },
-  4: { // Giovedì - Recupero Attivo
-    name: "RECUPERO ATTIVO",
+  4: {
+    // Giovedì - Recupero Attivo
+    name: 'RECUPERO ATTIVO',
     description: "30-40' LISS + Stretching + Sauna",
     exercises: [
-      { name: 'LISS (camminata/cyclette)', sets: 1, reps: '30-40min', weight: 0, rir: 'N/A', rest: 'N/A' },
-      { name: 'Stretching/mobilità', sets: 1, reps: '15-20min', weight: 0, rir: 'N/A', rest: 'N/A' },
-      { name: 'Sauna/bagno turco', sets: 1, reps: '10-15min', weight: 0, rir: 'N/A', rest: 'N/A' }
-    ]
+      {
+        name: 'LISS (camminata/cyclette)',
+        sets: 1,
+        reps: '30-40min',
+        weight: 0,
+        rir: 'N/A',
+        rest: 'N/A',
+      },
+      {
+        name: 'Stretching/mobilità',
+        sets: 1,
+        reps: '15-20min',
+        weight: 0,
+        rir: 'N/A',
+        rest: 'N/A',
+      },
+      {
+        name: 'Sauna/bagno turco',
+        sets: 1,
+        reps: '10-15min',
+        weight: 0,
+        rir: 'N/A',
+        rest: 'N/A',
+      },
+    ],
   },
-  5: { // Venerdì - Spalle Complete + Collo (B)
-    name: "SPALLE COMPLETE + COLLO (B)",
-    description: "Focus: Deltoidi laterali/posteriori, trapezio, richiamo braccia, collo",
+  5: {
+    // Venerdì - Spalle Complete + Collo (B)
+    name: 'SPALLE COMPLETE + COLLO (B)',
+    description:
+      'Focus: Deltoidi laterali/posteriori, trapezio, richiamo braccia, collo',
     exercises: [
-      { name: 'Military press manubri', sets: 4, reps: '6-8', weight: 0, rir: '1-2', rest: '2min' },
-      { name: 'Alzate laterali cavi/manubri', sets: 4, reps: '12-15', weight: 0, rir: '2-3', rest: '75s' },
-      { name: 'Rear delt fly (pec deck)', sets: 3, reps: '12-15', weight: 0, rir: '2-3', rest: '75s' },
-      { name: 'Face pull', sets: 3, reps: '12-15', weight: 0, rir: '2-3', rest: '60s' },
-      { name: 'Scrollate manubri/bilanciere', sets: 3, reps: '10-12', weight: 0, rir: '2-3', rest: '90s' },
-      { name: 'Curl manubri (richiamo)', sets: 2, reps: '12-15', weight: 0, rir: '3-4', rest: '60s' },
-      { name: 'Pushdown corda (richiamo)', sets: 2, reps: '12-15', weight: 0, rir: '3-4', rest: '60s' },
-      { name: 'Flessione collo', sets: 2, reps: '15-20', weight: 0, rir: '3-4', rest: '60s' },
-      { name: 'Estensione collo', sets: 2, reps: '15-20', weight: 0, rir: '3-4', rest: '60s' },
-      { name: 'Laterale collo dx/sx', sets: 2, reps: '12-15', weight: 0, rir: '3-4', rest: '60s' },
-      { name: 'Isometrie multidirezionali', sets: 3, reps: '20s', weight: 0, rir: 'N/A', rest: '60s' },
-      { name: 'Stomach vacuum', sets: 3, reps: '20s', weight: 0, rir: 'N/A', rest: '60s' },
-      { name: 'Plank', sets: 3, reps: '45s', weight: 0, rir: 'N/A', rest: '60s' }
-    ]
+      {
+        name: 'Military press manubri',
+        sets: 4,
+        reps: '6-8',
+        weight: 0,
+        rir: '1-2',
+        rest: '2min',
+      },
+      {
+        name: 'Alzate laterali cavi/manubri',
+        sets: 4,
+        reps: '12-15',
+        weight: 0,
+        rir: '2-3',
+        rest: '75s',
+      },
+      {
+        name: 'Rear delt fly (pec deck)',
+        sets: 3,
+        reps: '12-15',
+        weight: 0,
+        rir: '2-3',
+        rest: '75s',
+      },
+      {
+        name: 'Face pull',
+        sets: 3,
+        reps: '12-15',
+        weight: 0,
+        rir: '2-3',
+        rest: '60s',
+      },
+      {
+        name: 'Scrollate manubri/bilanciere',
+        sets: 3,
+        reps: '10-12',
+        weight: 0,
+        rir: '2-3',
+        rest: '90s',
+      },
+      {
+        name: 'Curl manubri (richiamo)',
+        sets: 2,
+        reps: '12-15',
+        weight: 0,
+        rir: '3-4',
+        rest: '60s',
+      },
+      {
+        name: 'Pushdown corda (richiamo)',
+        sets: 2,
+        reps: '12-15',
+        weight: 0,
+        rir: '3-4',
+        rest: '60s',
+      },
+      {
+        name: 'Flessione collo',
+        sets: 2,
+        reps: '15-20',
+        weight: 0,
+        rir: '3-4',
+        rest: '60s',
+      },
+      {
+        name: 'Estensione collo',
+        sets: 2,
+        reps: '15-20',
+        weight: 0,
+        rir: '3-4',
+        rest: '60s',
+      },
+      {
+        name: 'Laterale collo dx/sx',
+        sets: 2,
+        reps: '12-15',
+        weight: 0,
+        rir: '3-4',
+        rest: '60s',
+      },
+      {
+        name: 'Isometrie multidirezionali',
+        sets: 3,
+        reps: '20s',
+        weight: 0,
+        rir: 'N/A',
+        rest: '60s',
+      },
+      {
+        name: 'Stomach vacuum',
+        sets: 3,
+        reps: '20s',
+        weight: 0,
+        rir: 'N/A',
+        rest: '60s',
+      },
+      {
+        name: 'Plank',
+        sets: 3,
+        reps: '45s',
+        weight: 0,
+        rir: 'N/A',
+        rest: '60s',
+      },
+    ],
   },
-  6: { // Sabato - Posteriori + Conditioning
-    name: "POSTERIORI + CONDITIONING",
-    description: "Focus: Femorali, glutei, polpacci + condizionamento",
+  6: {
+    // Sabato - Posteriori + Conditioning
+    name: 'POSTERIORI + CONDITIONING',
+    description: 'Focus: Femorali, glutei, polpacci + condizionamento',
     exercises: [
-      { name: 'Stacco rumeno (RDL)', sets: 4, reps: '6-8', weight: 0, rir: '1-2', rest: '2min' },
-      { name: 'Hip thrust (variante mono)', sets: 3, reps: '10-12', weight: 0, rir: '2-3', rest: '2min' },
-      { name: 'Nordic curl/glute ham raise', sets: 3, reps: '8-10', weight: 0, rir: '2-3', rest: '90s' },
-      { name: 'Leg curl seduto', sets: 3, reps: '12-15', weight: 0, rir: '2-3', rest: '75s' },
-      { name: 'Calf raise multipla', sets: 3, reps: '15-20', weight: 0, rir: '2-3', rest: '60s' },
-      { name: "Farmer's walk", sets: 3, reps: '40m', weight: 0, rir: '2-3', rest: '90s' },
-      { name: 'HIIT Sprint', sets: 8, reps: '30s sprint / 60s walk', weight: 0, rir: 'Max', rest: '60s' }
-    ]
-  }
+      {
+        name: 'Stacco rumeno (RDL)',
+        sets: 4,
+        reps: '6-8',
+        weight: 0,
+        rir: '1-2',
+        rest: '2min',
+      },
+      {
+        name: 'Hip thrust (variante mono)',
+        sets: 3,
+        reps: '10-12',
+        weight: 0,
+        rir: '2-3',
+        rest: '2min',
+      },
+      {
+        name: 'Nordic curl/glute ham raise',
+        sets: 3,
+        reps: '8-10',
+        weight: 0,
+        rir: '2-3',
+        rest: '90s',
+      },
+      {
+        name: 'Leg curl seduto',
+        sets: 3,
+        reps: '12-15',
+        weight: 0,
+        rir: '2-3',
+        rest: '75s',
+      },
+      {
+        name: 'Calf raise multipla',
+        sets: 3,
+        reps: '15-20',
+        weight: 0,
+        rir: '2-3',
+        rest: '60s',
+      },
+      {
+        name: "Farmer's walk",
+        sets: 3,
+        reps: '40m',
+        weight: 0,
+        rir: '2-3',
+        rest: '90s',
+      },
+      {
+        name: 'HIIT Sprint',
+        sets: 8,
+        reps: '30s sprint / 60s walk',
+        weight: 0,
+        rir: 'Max',
+        rest: '60s',
+      },
+    ],
+  },
 };
 
 export default function NewWorkoutTracker() {
@@ -120,7 +461,7 @@ export default function NewWorkoutTracker() {
 
   const loadTodayWorkout = useCallback(() => {
     let workout = Storage.getWorkoutDay(today);
-    
+
     if (!workout) {
       // Usa la scheda del giorno corrente
       workout = {
@@ -135,12 +476,12 @@ export default function NewWorkoutTracker() {
           rir: ex.rir,
           restTime: ex.rest,
           targetReps: ex.reps,
-          completed: false
+          completed: false,
         })),
-        duration: 0
+        duration: 0,
       };
     }
-    
+
     setCurrentWorkout(workout);
   }, [today, todayPlan]);
 
@@ -198,35 +539,44 @@ export default function NewWorkoutTracker() {
 
     const updatedWorkout = {
       ...currentWorkout,
-      exercises: currentWorkout.exercises.map(ex => 
+      exercises: currentWorkout.exercises.map((ex) =>
         ex.id === exerciseId ? { ...ex, completed: !ex.completed } : ex
-      )
+      ),
     };
 
     saveWorkout(updatedWorkout);
   };
 
-  const updateExercise = (exerciseId: string, field: keyof Exercise, value: string | number | boolean) => {
+  const updateExercise = (
+    exerciseId: string,
+    field: keyof Exercise,
+    value: string | number | boolean
+  ) => {
     if (!currentWorkout) return;
 
     const updatedWorkout = {
       ...currentWorkout,
-      exercises: currentWorkout.exercises.map(ex => 
+      exercises: currentWorkout.exercises.map((ex) =>
         ex.id === exerciseId ? { ...ex, [field]: value } : ex
-      )
+      ),
     };
 
     saveWorkout(updatedWorkout);
 
     // Salva PR se peso migliorato
     if (field === 'weight' && typeof value === 'number' && value > 0) {
-      const exercise = updatedWorkout.exercises.find(ex => ex.id === exerciseId);
+      const exercise = updatedWorkout.exercises.find(
+        (ex) => ex.id === exerciseId
+      );
       if (exercise && exercise.reps) {
         Storage.savePersonalRecord({
           exerciseName: exercise.name,
           weight: value,
-          reps: typeof exercise.reps === 'number' ? exercise.reps : parseInt(exercise.reps as string) || 0,
-          date: today
+          reps:
+            typeof exercise.reps === 'number'
+              ? exercise.reps
+              : parseInt(exercise.reps as string) || 0,
+          date: today,
         });
       }
     }
@@ -241,7 +591,7 @@ export default function NewWorkoutTracker() {
     } else if (restTimeStr.includes('s')) {
       seconds = parseInt(restTimeStr);
     }
-    
+
     setRestTimer(seconds);
     setIsRestTimerRunning(true);
   };
@@ -250,7 +600,7 @@ export default function NewWorkoutTracker() {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
@@ -263,9 +613,11 @@ export default function NewWorkoutTracker() {
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const completedCount = currentWorkout?.exercises.filter(ex => ex.completed).length || 0;
+  const completedCount =
+    currentWorkout?.exercises.filter((ex) => ex.completed).length || 0;
   const totalCount = currentWorkout?.exercises.length || 0;
-  const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+  const progressPercentage =
+    totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   if (!currentWorkout) {
     return <div className="text-center py-8 text-white">Caricamento...</div>;
@@ -277,9 +629,7 @@ export default function NewWorkoutTracker() {
       <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 rounded-2xl p-6 text-white shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-3xl font-black">
-              {todayPlan.name}
-            </h2>
+            <h2 className="text-3xl font-black">{todayPlan.name}</h2>
             <p className="text-blue-100 text-lg font-medium">
               {todayPlan.description}
             </p>
@@ -287,7 +637,7 @@ export default function NewWorkoutTracker() {
               {formatDisplayDate(today)}
             </p>
           </div>
-          
+
           <div className="text-right">
             <div className="text-4xl font-mono font-black mb-2">
               {formatTime(timer)}
@@ -329,7 +679,9 @@ export default function NewWorkoutTracker() {
           />
         </div>
         <div className="flex justify-between text-sm mt-2 opacity-90">
-          <span>{completedCount} / {totalCount} esercizi</span>
+          <span>
+            {completedCount} / {totalCount} esercizi
+          </span>
           <span>{Math.round(progressPercentage)}% completato</span>
         </div>
       </div>
@@ -359,13 +711,13 @@ export default function NewWorkoutTracker() {
       {todayPlan.exercises.length > 0 ? (
         <div className="space-y-4">
           {currentWorkout.exercises.map((exercise, index) => (
-            <div 
-              key={exercise.id} 
+            <div
+              key={exercise.id}
               className={`bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border transition-all duration-300 ${
-                exercise.completed 
-                  ? 'border-green-500/50 bg-green-500/10' 
-                  : activeExercise === exercise.id 
-                    ? 'border-orange-500/50 bg-orange-500/10 scale-[1.02]' 
+                exercise.completed
+                  ? 'border-green-500/50 bg-green-500/10'
+                  : activeExercise === exercise.id
+                    ? 'border-orange-500/50 bg-orange-500/10 scale-[1.02]'
                     : 'border-gray-600 hover:border-gray-500'
               }`}
             >
@@ -384,9 +736,13 @@ export default function NewWorkoutTracker() {
                 </div>
 
                 <div className="flex-1">
-                  <h4 className={`text-xl font-bold mb-2 ${
-                    exercise.completed ? 'line-through text-gray-500' : 'text-white'
-                  }`}>
+                  <h4
+                    className={`text-xl font-bold mb-2 ${
+                      exercise.completed
+                        ? 'line-through text-gray-500'
+                        : 'text-white'
+                    }`}
+                  >
                     {exercise.name}
                   </h4>
 
@@ -394,18 +750,28 @@ export default function NewWorkoutTracker() {
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                     {/* Sets */}
                     <div className="bg-gray-700/50 rounded-lg p-3">
-                      <label className="text-xs text-gray-400 block mb-1">SERIE</label>
+                      <label className="text-xs text-gray-400 block mb-1">
+                        SERIE
+                      </label>
                       <input
                         type="number"
                         value={exercise.sets || ''}
-                        onChange={(e) => updateExercise(exercise.id, 'sets', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateExercise(
+                            exercise.id,
+                            'sets',
+                            parseInt(e.target.value) || 0
+                          )
+                        }
                         className="w-full bg-transparent text-white text-lg font-bold border-none outline-none"
                       />
                     </div>
 
                     {/* Reps */}
                     <div className="bg-gray-700/50 rounded-lg p-3">
-                      <label className="text-xs text-gray-400 block mb-1">REPS</label>
+                      <label className="text-xs text-gray-400 block mb-1">
+                        REPS
+                      </label>
                       <div className="text-white text-lg font-bold">
                         {exercise.targetReps || exercise.reps}
                       </div>
@@ -413,11 +779,19 @@ export default function NewWorkoutTracker() {
 
                     {/* Weight */}
                     <div className="bg-gray-700/50 rounded-lg p-3">
-                      <label className="text-xs text-gray-400 block mb-1">PESO (KG)</label>
+                      <label className="text-xs text-gray-400 block mb-1">
+                        PESO (KG)
+                      </label>
                       <input
                         type="number"
                         value={exercise.weight || ''}
-                        onChange={(e) => updateExercise(exercise.id, 'weight', parseFloat(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateExercise(
+                            exercise.id,
+                            'weight',
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
                         className="w-full bg-transparent text-white text-lg font-bold border-none outline-none"
                         step="0.5"
                         placeholder="0"
@@ -426,7 +800,9 @@ export default function NewWorkoutTracker() {
 
                     {/* RIR */}
                     <div className="bg-gray-700/50 rounded-lg p-3">
-                      <label className="text-xs text-gray-400 block mb-1">RIR</label>
+                      <label className="text-xs text-gray-400 block mb-1">
+                        RIR
+                      </label>
                       <div className="text-white text-lg font-bold">
                         {exercise.rir || 'N/A'}
                       </div>
@@ -434,14 +810,18 @@ export default function NewWorkoutTracker() {
 
                     {/* Rest */}
                     <div className="bg-gray-700/50 rounded-lg p-3">
-                      <label className="text-xs text-gray-400 block mb-1">RIPOSO</label>
+                      <label className="text-xs text-gray-400 block mb-1">
+                        RIPOSO
+                      </label>
                       <div className="flex items-center">
                         <span className="text-white text-sm font-bold mr-2">
                           {exercise.restTime || 'N/A'}
                         </span>
                         {exercise.restTime && exercise.restTime !== 'N/A' && (
                           <button
-                            onClick={() => startRestTimer(exercise.id, exercise.restTime!)}
+                            onClick={() =>
+                              startRestTimer(exercise.id, exercise.restTime!)
+                            }
                             className="text-xs bg-orange-500 hover:bg-orange-600 text-white px-2 py-1 rounded transition-all"
                           >
                             ⏱️
@@ -453,10 +833,14 @@ export default function NewWorkoutTracker() {
 
                   {/* Notes */}
                   <div className="bg-gray-700/30 rounded-lg p-3">
-                    <label className="text-xs text-gray-400 block mb-1">NOTE</label>
+                    <label className="text-xs text-gray-400 block mb-1">
+                      NOTE
+                    </label>
                     <textarea
                       value={exercise.notes || ''}
-                      onChange={(e) => updateExercise(exercise.id, 'notes', e.target.value)}
+                      onChange={(e) =>
+                        updateExercise(exercise.id, 'notes', e.target.value)
+                      }
                       placeholder="Aggiungi note sull'esecuzione, sensazioni, etc..."
                       className="w-full bg-transparent text-white placeholder-gray-500 border-none outline-none resize-none"
                       rows={2}
@@ -470,9 +854,12 @@ export default function NewWorkoutTracker() {
       ) : (
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-600 text-center">
           <div className="text-6xl mb-4">🛌</div>
-          <h3 className="text-2xl font-bold text-white mb-2">GIORNO DI RIPOSO</h3>
+          <h3 className="text-2xl font-bold text-white mb-2">
+            GIORNO DI RIPOSO
+          </h3>
           <p className="text-gray-400">
-            Oggi è il momento di recuperare. Fai stretching, rilassati o goditi una passeggiata!
+            Oggi è il momento di recuperare. Fai stretching, rilassati o goditi
+            una passeggiata!
           </p>
         </div>
       )}
@@ -492,7 +879,7 @@ export default function NewWorkoutTracker() {
                 if (currentWorkout) {
                   saveWorkout({
                     ...currentWorkout,
-                    duration: timer
+                    duration: timer,
                   });
                 }
               }}

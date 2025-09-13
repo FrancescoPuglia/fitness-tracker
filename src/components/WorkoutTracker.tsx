@@ -9,7 +9,7 @@ const defaultExercises: Omit<Exercise, 'id' | 'completed'>[] = [
   { name: 'Stacchi', sets: 3, reps: 10 },
   { name: 'Trazioni', sets: 3, reps: 8 },
   { name: 'Push-up', sets: 3, reps: 20 },
-  { name: 'Plank', sets: 3, reps: 30 }
+  { name: 'Plank', sets: 3, reps: 30 },
 ];
 
 export default function WorkoutTracker() {
@@ -22,20 +22,20 @@ export default function WorkoutTracker() {
 
   const loadTodayWorkout = useCallback(() => {
     let workout = Storage.getWorkoutDay(today);
-    
+
     if (!workout) {
       workout = {
         id: generateId(),
         date: today,
-        exercises: defaultExercises.map(ex => ({
+        exercises: defaultExercises.map((ex) => ({
           id: generateId(),
           ...ex,
-          completed: false
+          completed: false,
         })),
-        duration: 0
+        duration: 0,
       };
     }
-    
+
     setCurrentWorkout(workout);
   }, [today]);
 
@@ -67,34 +67,43 @@ export default function WorkoutTracker() {
 
     const updatedWorkout = {
       ...currentWorkout,
-      exercises: currentWorkout.exercises.map(ex => 
+      exercises: currentWorkout.exercises.map((ex) =>
         ex.id === exerciseId ? { ...ex, completed: !ex.completed } : ex
-      )
+      ),
     };
 
     saveWorkout(updatedWorkout);
   };
 
-  const updateExercise = (exerciseId: string, field: keyof Exercise, value: string | number | boolean) => {
+  const updateExercise = (
+    exerciseId: string,
+    field: keyof Exercise,
+    value: string | number | boolean
+  ) => {
     if (!currentWorkout) return;
 
     const updatedWorkout = {
       ...currentWorkout,
-      exercises: currentWorkout.exercises.map(ex => 
+      exercises: currentWorkout.exercises.map((ex) =>
         ex.id === exerciseId ? { ...ex, [field]: value } : ex
-      )
+      ),
     };
 
     saveWorkout(updatedWorkout);
 
     if (field === 'weight' && typeof value === 'number' && value > 0) {
-      const exercise = updatedWorkout.exercises.find(ex => ex.id === exerciseId);
+      const exercise = updatedWorkout.exercises.find(
+        (ex) => ex.id === exerciseId
+      );
       if (exercise && exercise.reps) {
         Storage.savePersonalRecord({
           exerciseName: exercise.name,
           weight: value,
-          reps: typeof exercise.reps === 'number' ? exercise.reps : parseInt(exercise.reps as string) || 0,
-          date: today
+          reps:
+            typeof exercise.reps === 'number'
+              ? exercise.reps
+              : parseInt(exercise.reps as string) || 0,
+          date: today,
         });
       }
     }
@@ -108,12 +117,12 @@ export default function WorkoutTracker() {
       name: 'Nuovo Esercizio',
       sets: 3,
       reps: 10,
-      completed: false
+      completed: false,
     };
 
     const updatedWorkout = {
       ...currentWorkout,
-      exercises: [...currentWorkout.exercises, newExercise]
+      exercises: [...currentWorkout.exercises, newExercise],
     };
 
     saveWorkout(updatedWorkout);
@@ -124,7 +133,7 @@ export default function WorkoutTracker() {
 
     const updatedWorkout = {
       ...currentWorkout,
-      exercises: currentWorkout.exercises.filter(ex => ex.id !== exerciseId)
+      exercises: currentWorkout.exercises.filter((ex) => ex.id !== exerciseId),
     };
 
     saveWorkout(updatedWorkout);
@@ -139,7 +148,7 @@ export default function WorkoutTracker() {
     if (currentWorkout) {
       const updatedWorkout = {
         ...currentWorkout,
-        duration: timer
+        duration: timer,
       };
       saveWorkout(updatedWorkout);
     }
@@ -154,14 +163,15 @@ export default function WorkoutTracker() {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const completedCount = currentWorkout?.exercises.filter(ex => ex.completed).length || 0;
+  const completedCount =
+    currentWorkout?.exercises.filter((ex) => ex.completed).length || 0;
   const totalCount = currentWorkout?.exercises.length || 0;
 
   if (!currentWorkout) {
@@ -180,7 +190,7 @@ export default function WorkoutTracker() {
               {completedCount} / {totalCount} esercizi completati
             </p>
           </div>
-          
+
           <div className="text-right">
             <div className="text-2xl font-mono font-bold text-gray-900">
               {formatTime(timer)}
@@ -214,7 +224,9 @@ export default function WorkoutTracker() {
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className="bg-primary-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}
+            style={{
+              width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%`,
+            }}
           />
         </div>
       </div>
@@ -247,32 +259,48 @@ export default function WorkoutTracker() {
                     <input
                       type="text"
                       value={exercise.name}
-                      onChange={(e) => updateExercise(exercise.id, 'name', e.target.value)}
+                      onChange={(e) =>
+                        updateExercise(exercise.id, 'name', e.target.value)
+                      }
                       className="font-medium text-gray-900 bg-transparent border-b border-gray-300 focus:border-primary-500 outline-none"
                     />
                   ) : (
-                    <div className={`font-medium ${exercise.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                    <div
+                      className={`font-medium ${exercise.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}
+                    >
                       {exercise.name}
                     </div>
                   )}
-                  
+
                   <div className="flex items-center space-x-4 mt-2">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-600">Serie:</span>
                       <input
                         type="number"
                         value={exercise.sets || ''}
-                        onChange={(e) => updateExercise(exercise.id, 'sets', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateExercise(
+                            exercise.id,
+                            'sets',
+                            parseInt(e.target.value) || 0
+                          )
+                        }
                         className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary-500"
                       />
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-600">Rip:</span>
                       <input
                         type="number"
                         value={exercise.reps || ''}
-                        onChange={(e) => updateExercise(exercise.id, 'reps', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateExercise(
+                            exercise.id,
+                            'reps',
+                            parseInt(e.target.value) || 0
+                          )
+                        }
                         className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary-500"
                       />
                     </div>
@@ -282,7 +310,13 @@ export default function WorkoutTracker() {
                       <input
                         type="number"
                         value={exercise.weight || ''}
-                        onChange={(e) => updateExercise(exercise.id, 'weight', parseFloat(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateExercise(
+                            exercise.id,
+                            'weight',
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
                         className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary-500"
                         step="0.5"
                       />
@@ -302,7 +336,9 @@ export default function WorkoutTracker() {
                     <div className="mt-2">
                       <textarea
                         value={exercise.notes}
-                        onChange={(e) => updateExercise(exercise.id, 'notes', e.target.value)}
+                        onChange={(e) =>
+                          updateExercise(exercise.id, 'notes', e.target.value)
+                        }
                         placeholder="Note per l'esercizio..."
                         className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary-500"
                         rows={2}
