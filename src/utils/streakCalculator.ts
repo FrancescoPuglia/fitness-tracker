@@ -12,9 +12,8 @@ export function calculateWorkoutStreak(): number {
   const today = new Date();
   let streak = 0;
 
-  // Controlla ogni giorno a ritroso partendo da ieri
-  // (oggi non conta per il streak fino a quando non completi l'allenamento)
-  for (let i = 1; i <= 365; i++) {
+  // Controlla ogni giorno a ritroso partendo da oggi
+  for (let i = 0; i <= 365; i++) {
     // massimo 1 anno di streak
     const checkDate = new Date(today);
     checkDate.setDate(today.getDate() - i);
@@ -57,7 +56,7 @@ export function calculateDietStreak(): number {
   const today = new Date();
   let streak = 0;
 
-  for (let i = 1; i <= 365; i++) {
+  for (let i = 0; i <= 365; i++) {
     const checkDate = new Date(today);
     checkDate.setDate(today.getDate() - i);
 
@@ -97,7 +96,7 @@ export function calculateOverallStreak(): number {
   const today = new Date();
   let streak = 0;
 
-  for (let i = 1; i <= 365; i++) {
+  for (let i = 0; i <= 365; i++) {
     const checkDate = new Date(today);
     checkDate.setDate(today.getDate() - i);
 

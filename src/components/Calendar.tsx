@@ -31,16 +31,37 @@ export default function Calendar() {
 
     while (current <= endOfWeek) {
       const dateString = formatDate(current);
-      const workout = Storage.getWorkoutDay(dateString);
-      const diet = Storage.getDietDay(dateString);
+      
+      // Carica da localStorage (compatibile con nuovi sistemi)
+      const workoutData = localStorage.getItem(`workout_${dateString}`);
+      const workout = workoutData ? JSON.parse(workoutData) : null;
+      
+      const dietData = localStorage.getItem(`diet_${dateString}`);  
+      const diet = dietData ? JSON.parse(dietData) : null;
 
-      const workoutCompletion = workout
-        ? workout.exercises.filter((ex) => ex.completed).length /
+      const workoutCompletion = workout && workout.exercises
+        ? workout.exercises.filter((ex: any) => ex.completed).length /
           workout.exercises.length
         : 0;
 
-      const dietCompletion = diet
-        ? diet.meals.filter((meal) => meal.completed).length / diet.meals.length
+      // Calcola diet completion dal nuovo formato
+      const dietCompletion = diet && diet.completedItems
+        ? (() => {
+            // Calcola totale items per il giorno (simile a NewDietTracker)
+            const dayOfWeek = new Date(dateString).getDay();
+            const WEEKLY_DIET_PLAN: Record<number, any> = {
+              0: { meals: [{ items: [{}, {}] }, { items: [{}, {}, {}] }, { items: [{}, {}, {}, {}, {}] }, { items: [{}, {}] }] },
+              1: { meals: [{ items: [{}, {}] }, { items: [{}, {}, {}] }, { items: [{}, {}, {}, {}, {}] }, { items: [{}, {}] }] },
+              2: { meals: [{ items: [{}, {}] }, { items: [{}, {}, {}, {}, {}] }, { items: [{}, {}, {}, {}, {}] }, { items: [{}, {}] }] },
+              3: { meals: [{ items: [{}, {}] }, { items: [{}, {}] }, { items: [{}, {}, {}, {}] }, { items: [{}, {}] }] },
+              4: { meals: [{ items: [{}, {}] }, { items: [{}, {}, {}] }, { items: [{}, {}, {}, {}] }, { items: [{}] }] },
+              5: { meals: [{ items: [{}, {}] }, { items: [{}, {}, {}, {}] }, { items: [{}, {}, {}, {}, {}] }, { items: [{}, {}] }] },
+              6: { meals: [{ items: [{}, {}] }, { items: [{}, {}, {}, {}] }, { items: [{}, {}, {}, {}, {}] }, { items: [{}, {}] }] }
+            };
+            const dayPlan = WEEKLY_DIET_PLAN[dayOfWeek];
+            const totalItems = dayPlan ? dayPlan.meals.reduce((sum: number, meal: any) => sum + meal.items.length, 0) : 1;
+            return diet.completedItems.length / totalItems;
+          })()
         : 0;
 
       data.push({

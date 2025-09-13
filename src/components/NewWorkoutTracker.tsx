@@ -617,8 +617,10 @@ export default function NewWorkoutTracker() {
       const exercise = updatedWorkout.exercises.find(
         (ex) => ex.id === exerciseId
       );
-      if (exercise && exercise.reps) {
-        savePotentialPR(exercise.name, value, exercise.reps);
+      if (exercise) {
+        // Usa reps dall'esercizio o un valore di default
+        const repsValue = exercise.reps || exercise.sets || 1;
+        savePotentialPR(exercise.name, value, repsValue);
       }
     }
   };
