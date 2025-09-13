@@ -126,7 +126,7 @@ export default function NewWorkoutTracker() {
       workout = {
         id: generateId(),
         date: today,
-        exercises: todayPlan.exercises.map((ex: any) => ({
+        exercises: todayPlan.exercises.map((ex) => ({
           id: generateId(),
           name: ex.name,
           sets: ex.sets,
