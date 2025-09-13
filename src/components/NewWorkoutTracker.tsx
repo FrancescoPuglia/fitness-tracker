@@ -555,6 +555,34 @@ export default function NewWorkoutTracker() {
     setCurrentWorkout(workout);
   };
 
+  const savePotentialPR = (exerciseName: string, weight: number, reps: number) => {
+    const prKey = 'personal_records';
+    const existingPRs = JSON.parse(localStorage.getItem(prKey) || '[]');
+    
+    // Trova record esistente per questo esercizio
+    const existingPR = existingPRs.find((pr: any) => pr.exerciseName === exerciseName);
+    
+    if (!existingPR || weight > existingPR.weight) {
+      // Nuovo PR!
+      const newPR = {
+        exerciseName,
+        weight,
+        reps: typeof reps === 'number' ? reps : parseInt(String(reps)) || 0,
+        date: today,
+        timestamp: new Date().toISOString()
+      };
+      
+      // Rimuovi vecchio record e aggiungi nuovo
+      const updatedPRs = existingPRs.filter((pr: any) => pr.exerciseName !== exerciseName);
+      updatedPRs.push(newPR);
+      
+      localStorage.setItem(prKey, JSON.stringify(updatedPRs));
+      
+      // Notifica visiva del PR (optional)
+      console.log(`🔥 NUOVO PR! ${exerciseName}: ${weight}kg`);
+    }
+  };
+
   const toggleExercise = (exerciseId: string) => {
     if (!currentWorkout) return;
 
@@ -584,14 +612,13 @@ export default function NewWorkoutTracker() {
 
     saveWorkout(updatedWorkout);
 
-    // Salva PR se peso migliorato (implementazione futura)
+    // Salva PR se peso migliorato
     if (field === 'weight' && typeof value === 'number' && value > 0) {
       const exercise = updatedWorkout.exercises.find(
         (ex) => ex.id === exerciseId
       );
       if (exercise && exercise.reps) {
-        // TODO: Implementare sistema PR con localStorage
-        console.log(`PR potenziale: ${exercise.name} - ${value}kg`);
+        savePotentialPR(exercise.name, value, exercise.reps);
       }
     }
   };
