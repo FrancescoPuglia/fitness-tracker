@@ -15,10 +15,6 @@ export default function Calendar() {
   const [calendarData, setCalendarData] = useState<DayData[]>([]);
   const [selectedDay, setSelectedDay] = useState<DayData | null>(null);
 
-  useEffect(() => {
-    loadCalendarData();
-  }, [currentDate]);
-
   const loadCalendarData = useCallback(() => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -59,6 +55,10 @@ export default function Calendar() {
 
     setCalendarData(data);
   }, [currentDate]);
+
+  useEffect(() => {
+    loadCalendarData();
+  }, [currentDate, loadCalendarData]);
 
   const navigateMonth = (direction: 'prev' | 'next') => {
     setCurrentDate(prev => {

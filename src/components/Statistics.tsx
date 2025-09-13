@@ -14,10 +14,6 @@ export default function Statistics() {
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStats[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<'30' | '90' | '365'>('30');
 
-  useEffect(() => {
-    loadStatistics();
-  }, [selectedPeriod]);
-
   const loadStatistics = useCallback(() => {
     const records = Storage.getPersonalRecords();
     const workouts = Storage.getWorkoutDays();
@@ -74,6 +70,10 @@ export default function Statistics() {
 
     setWeeklyStats(weekly.reverse());
   }, [selectedPeriod]);
+
+  useEffect(() => {
+    loadStatistics();
+  }, [selectedPeriod, loadStatistics]);
 
   const calculateOverallStats = () => {
     const workouts = Storage.getWorkoutDays();
