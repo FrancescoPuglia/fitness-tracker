@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { formatDate, formatDisplayDate } from '../utils';
+import { GamificationManager } from '../systems/gamification';
 
 // Scheda settimanale specifica
 const WEEKLY_WORKOUT_PLAN: Record<
@@ -586,6 +587,9 @@ export default function NewWorkoutTracker() {
   const toggleExercise = (exerciseId: string) => {
     if (!currentWorkout) return;
 
+    const exercise = currentWorkout.exercises.find(ex => ex.id === exerciseId);
+    const wasCompleted = exercise?.completed || false;
+
     const updatedWorkout = {
       ...currentWorkout,
       exercises: currentWorkout.exercises.map((ex) =>
@@ -594,6 +598,12 @@ export default function NewWorkoutTracker() {
     };
 
     saveWorkout(updatedWorkout);
+
+    // Award XP for completing exercise
+    if (!wasCompleted && exercise) {
+      GamificationManager.awardXP('exercise_complete');
+      GamificationManager.checkAchievements();
+    }
   };
 
   const updateExercise = (
@@ -620,6 +630,19 @@ export default function NewWorkoutTracker() {
       if (exercise) {
         // Usa reps dall'esercizio o un valore di default
         const repsValue = exercise.reps || exercise.sets || 1;
+        
+        // Check if this is a new PR
+        const prKey = 'personal_records';
+        const existingPRs = JSON.parse(localStorage.getItem(prKey) || '[]');
+        const existingPR = existingPRs.find((pr: any) => pr.exerciseName === exercise.name);
+        
+        if (!existingPR || value > existingPR.weight) {
+          // New PR! Award extra XP
+          GamificationManager.awardXP('pr_achieved');
+          GamificationManager.updatePRStats();
+          GamificationManager.checkAchievements();
+        }
+        
         savePotentialPR(exercise.name, value, repsValue);
       }
     }
@@ -924,6 +947,11 @@ export default function NewWorkoutTracker() {
                     ...currentWorkout,
                     duration: timer,
                   });
+                  
+                  // Award XP for completing workout
+                  GamificationManager.awardXP('workout_complete');
+                  GamificationManager.updateWorkoutStats();
+                  GamificationManager.checkAchievements();
                 }
               }}
               className="px-8 py-3 bg-white/20 hover:bg-white/30 rounded-lg font-bold transition-all backdrop-blur-sm"
