@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Dashboard from './components/Dashboard';
 import WorkoutTracker from './components/NewWorkoutTracker';
-import DietTracker from './components/NewDietTracker';
+import BeastModeDiet from './components/BeastModeDiet';
 import Calendar from './components/Calendar';
 import Statistics from './components/Statistics';
 import Settings from './components/Settings';
@@ -61,7 +61,7 @@ function App() {
       case 'workout':
         return <WorkoutTracker />;
       case 'diet':
-        return <DietTracker />;
+        return <BeastModeDiet />;
       case 'calendar':
         return <Calendar />;
       case 'stats':
