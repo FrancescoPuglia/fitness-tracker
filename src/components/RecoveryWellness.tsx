@@ -215,8 +215,8 @@ export default function RecoveryWellness() {
     
     checkAchievements(updatedSessions);
     
-    GamificationManager.completeWorkout();
-    GamificationManager.addXP(30, `Recovery ${type} completato!`);
+    GamificationManager.awardXP('workout_complete');
+    GamificationManager.awardXP('exercise_complete', 30);
     
     setNotes('');
     setTemperature(0);
@@ -247,7 +247,7 @@ export default function RecoveryWellness() {
       if (achievement && !achievement.unlocked && check.condition) {
         achievement.unlocked = true;
         newUnlocks = true;
-        GamificationManager.addXP(50, `Achievement sbloccato: ${achievement.title}!`);
+        GamificationManager.awardXP('badge_earned', 50);
       }
     });
 
