@@ -3,6 +3,48 @@ import { Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement
 import { Line } from 'react-chartjs-2';
 import { GamificationManager } from '../systems/gamification';
 
+const RECOVERY_BENEFITS = {
+  sauna: {
+    title: 'SAUNA (Secca)',
+    icon: '🔥',
+    description: 'È come entrare in un piccolo sole privato: il calore ti svuota la testa e ti riempie il corpo di quiete.',
+    benefits: [
+      '❤️ Riduzione mortalità cardiovascolare (studi finlandesi)',
+      '🧠 Possibile protezione da demenza e Alzheimer', 
+      '💆‍♂️ Rilassamento profondo e riduzione stress',
+      '🔄 Miglioramento circolazione sanguigna',
+      '😴 Qualità del sonno migliorata'
+    ],
+    sources: ['JAMA Network', 'OUP Academic']
+  },
+  steam: {
+    title: 'BAGNO TURCO / HAMMAM (Vapore)',
+    icon: '💨',
+    description: 'Il vapore è un abbraccio umido: ti scioglie le spalle, ammorbidisce la pelle, ti fa respirare "più largo".',
+    benefits: [
+      '💓 Riduzione pressione arteriosa',
+      '🫀 Diminuzione frequenza cardiaca a riposo',
+      '🫁 Sollievo per vie respiratorie (limitato)',
+      '🧴 Idratazione e ammorbidimento pelle',
+      '🧘‍♂️ Rilassamento muscolare profondo'
+    ],
+    sources: ['ScienceDirect', 'PMC']
+  },
+  ice: {
+    title: 'ICE BATH (Immersione Fredda)',
+    icon: '🧊',
+    description: 'Il freddo è una lama pulita: taglia via la nebbia mentale e ti lascia addosso una scintilla, come se il corpo si ricordasse di essere vivo.',
+    benefits: [
+      '💪 Riduzione DOMS (indolenzimento muscolare)',
+      '⚡ Diminuzione percezione di fatica',
+      '🧠 Aumento concentrazione e lucidità mentale',
+      '🔋 Boost energetico e umore',
+      '🏃‍♂️ Accelerazione recupero post-allenamento'
+    ],
+    sources: ['Meta-analisi immersione fredda']
+  }
+};
+
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
 
 interface RecoverySession {
@@ -25,19 +67,20 @@ interface RecoveryAchievement {
 }
 
 interface TimerState {
-  minutes: number;
   seconds: number;
   isActive: boolean;
-  totalSeconds: number;
-  progress: number;
+  isPaused: boolean;
+  startTime: number | null;
+  elapsedTime: number;
+  minRecommended: number;
 }
 
 export default function RecoveryWellness() {
   const [activeTimer, setActiveTimer] = useState<'sauna' | 'steam' | 'ice' | null>(null);
   const [timers, setTimers] = useState<Record<'sauna' | 'steam' | 'ice', TimerState>>({
-    sauna: { minutes: 15, seconds: 0, isActive: false, totalSeconds: 900, progress: 0 },
-    steam: { minutes: 12, seconds: 0, isActive: false, totalSeconds: 720, progress: 0 },
-    ice: { minutes: 3, seconds: 0, isActive: false, totalSeconds: 180, progress: 0 }
+    sauna: { seconds: 0, isActive: false, isPaused: false, startTime: null, elapsedTime: 0, minRecommended: 900 },
+    steam: { seconds: 0, isActive: false, isPaused: false, startTime: null, elapsedTime: 0, minRecommended: 720 },
+    ice: { seconds: 0, isActive: false, isPaused: false, startTime: null, elapsedTime: 0, minRecommended: 180 }
   });
   
   const [sessions, setSessions] = useState<RecoverySession[]>([]);
@@ -111,13 +154,20 @@ export default function RecoveryWellness() {
 
   const startTimer = (type: 'sauna' | 'steam' | 'ice') => {
     if (activeTimer && activeTimer !== type) {
-      stopTimer();
+      pauseTimer();
     }
     
     setActiveTimer(type);
+    const currentTime = Date.now();
+    
     setTimers(prev => ({
       ...prev,
-      [type]: { ...prev[type], isActive: true }
+      [type]: { 
+        ...prev[type], 
+        isActive: true, 
+        isPaused: false,
+        startTime: prev[type].startTime || currentTime
+      }
     }));
 
     if (intervalRef.current) {
@@ -127,83 +177,97 @@ export default function RecoveryWellness() {
     intervalRef.current = setInterval(() => {
       setTimers(prev => {
         const currentTimer = prev[type];
-        if (currentTimer.minutes === 0 && currentTimer.seconds === 0) {
-          completeSession(type);
-          return prev;
-        }
-
-        let newSeconds = currentTimer.seconds - 1;
-        let newMinutes = currentTimer.minutes;
-
-        if (newSeconds < 0) {
-          newSeconds = 59;
-          newMinutes -= 1;
-        }
-
-        const elapsed = currentTimer.totalSeconds - (newMinutes * 60 + newSeconds);
-        const progress = (elapsed / currentTimer.totalSeconds) * 100;
+        if (!currentTimer.isActive) return prev;
+        
+        const now = Date.now();
+        const totalElapsed = currentTimer.elapsedTime + (now - (currentTimer.startTime || now));
+        const currentSeconds = Math.floor(totalElapsed / 1000);
 
         return {
           ...prev,
           [type]: {
             ...currentTimer,
-            minutes: newMinutes,
-            seconds: newSeconds,
-            progress
+            seconds: currentSeconds
           }
         };
       });
     }, 1000);
   };
 
-  const stopTimer = () => {
+  const pauseTimer = () => {
+    if (!activeTimer) return;
+    
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
     
     setTimers(prev => {
-      const newTimers = { ...prev };
-      Object.keys(newTimers).forEach(key => {
-        newTimers[key as keyof typeof newTimers].isActive = false;
-      });
-      return newTimers;
+      const currentTimer = prev[activeTimer];
+      const now = Date.now();
+      const sessionElapsed = currentTimer.startTime ? now - currentTimer.startTime : 0;
+      
+      return {
+        ...prev,
+        [activeTimer]: {
+          ...currentTimer,
+          isActive: false,
+          isPaused: true,
+          elapsedTime: currentTimer.elapsedTime + sessionElapsed,
+          startTime: null
+        }
+      };
     });
     
     setActiveTimer(null);
   };
 
+  const stopAndSave = () => {
+    if (!activeTimer) return;
+    
+    pauseTimer();
+    
+    const timerState = timers[activeTimer];
+    const finalDuration = Math.floor((timerState.elapsedTime + (timerState.startTime ? Date.now() - timerState.startTime : 0)) / 1000);
+    
+    if (finalDuration > 0) {
+      completeSession(activeTimer, finalDuration);
+    }
+  };
+
   const resetTimer = (type: 'sauna' | 'steam' | 'ice') => {
-    const defaultTimes = {
-      sauna: { minutes: 15, totalSeconds: 900 },
-      steam: { minutes: 12, totalSeconds: 720 },
-      ice: { minutes: 3, totalSeconds: 180 }
-    };
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
 
     setTimers(prev => ({
       ...prev,
       [type]: {
-        ...defaultTimes[type],
         seconds: 0,
         isActive: false,
-        progress: 0
+        isPaused: false,
+        startTime: null,
+        elapsedTime: 0,
+        minRecommended: prev[type].minRecommended
       }
     }));
 
     if (activeTimer === type) {
-      stopTimer();
+      setActiveTimer(null);
     }
   };
 
-  const completeSession = (type: 'sauna' | 'steam' | 'ice') => {
-    stopTimer();
+  const completeSession = (type: 'sauna' | 'steam' | 'ice', durationInSeconds?: number) => {
     setShowParticles(true);
     setTimeout(() => setShowParticles(false), 3000);
 
+    const finalDuration = durationInSeconds || timers[type].seconds;
+    
     const newSession: RecoverySession = {
       id: Date.now().toString(),
       type,
-      duration: timers[type].totalSeconds / 60,
+      duration: finalDuration / 60, // Convert to minutes
       temperature: temperature > 0 ? temperature : undefined,
       notes,
       date: new Date().toISOString(),
@@ -215,8 +279,13 @@ export default function RecoveryWellness() {
     
     checkAchievements(updatedSessions);
     
+    // Award XP based on duration vs minimum
+    const minSeconds = timers[type].minRecommended;
+    const baseXP = 30;
+    const bonusXP = finalDuration > minSeconds ? Math.floor((finalDuration - minSeconds) / 60) * 10 : 0;
+    
     GamificationManager.awardXP('workout_complete');
-    GamificationManager.awardXP('exercise_complete', 30);
+    GamificationManager.awardXP('exercise_complete', baseXP + bonusXP);
     
     setNotes('');
     setTemperature(0);
@@ -374,8 +443,15 @@ export default function RecoveryWellness() {
     }
   };
 
-  const formatTime = (minutes: number, seconds: number) => {
+  const formatTime = (totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const formatMinRecommended = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes} min minimo`;
   };
 
   return (
@@ -406,55 +482,67 @@ export default function RecoveryWellness() {
               </h3>
             </div>
 
-            {/* Progress Ring */}
-            <div className="relative w-32 h-32 mx-auto mb-4">
-              <svg className="transform -rotate-90 w-full h-full">
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="56"
-                  stroke="rgba(255,255,255,0.2)"
-                  strokeWidth="8"
-                  fill="transparent"
-                />
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="56"
-                  stroke="white"
-                  strokeWidth="8"
-                  fill="transparent"
-                  strokeDasharray={`${timers[type].progress * 3.51} 351`}
-                  className="transition-all duration-1000"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-bold">
-                  {formatTime(timers[type].minutes, timers[type].seconds)}
-                </span>
+            {/* Timer Display */}
+            <div className="text-center mb-4">
+              <div className="text-6xl font-black text-white mb-2">
+                {formatTime(timers[type].seconds)}
               </div>
+              <div className="text-sm opacity-75">
+                {formatMinRecommended(timers[type].minRecommended)}
+              </div>
+              {timers[type].seconds >= timers[type].minRecommended && (
+                <div className="text-green-400 font-bold text-sm mt-1">
+                  🎯 OBIETTIVO RAGGIUNTO!
+                </div>
+              )}
+              {timers[type].isPaused && (
+                <div className="text-yellow-400 font-bold text-sm mt-1">
+                  ⏸️ IN PAUSA
+                </div>
+              )}
             </div>
 
             {/* Timer Controls */}
-            <div className="flex justify-center space-x-3">
-              {!timers[type].isActive ? (
+            <div className="flex justify-center space-x-2 flex-wrap gap-2">
+              {!timers[type].isActive && !timers[type].isPaused && (
                 <button
                   onClick={() => startTimer(type)}
-                  className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg font-bold transition-all"
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition-all"
                 >
                   ▶️ START
                 </button>
-              ) : (
+              )}
+              
+              {timers[type].isActive && (
                 <button
-                  onClick={stopTimer}
-                  className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg font-bold transition-all"
+                  onClick={pauseTimer}
+                  className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-bold transition-all"
                 >
                   ⏸️ PAUSE
                 </button>
               )}
+              
+              {timers[type].isPaused && (
+                <button
+                  onClick={() => startTimer(type)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all"
+                >
+                  ▶️ RIPRENDI
+                </button>
+              )}
+              
+              {(timers[type].isActive || timers[type].isPaused) && timers[type].seconds > 0 && (
+                <button
+                  onClick={stopAndSave}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold transition-all"
+                >
+                  💾 SALVA
+                </button>
+              )}
+              
               <button
                 onClick={() => resetTimer(type)}
-                className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg font-bold transition-all"
+                className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-all"
               >
                 🔄 RESET
               </button>
@@ -525,6 +613,43 @@ export default function RecoveryWellness() {
         </div>
       </div>
 
+      {/* Personal Records */}
+      <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-600">
+        <h3 className="text-white font-bold text-xl mb-4">🏆 RECORD PERSONALI</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {(['sauna', 'steam', 'ice'] as const).map((type) => {
+            const typeSessions = sessions.filter(s => s.type === type);
+            const maxDuration = typeSessions.length > 0 
+              ? Math.max(...typeSessions.map(s => s.duration))
+              : 0;
+            const maxSession = typeSessions.find(s => s.duration === maxDuration);
+            
+            return (
+              <div key={type} className="bg-gray-700/50 rounded-lg p-4">
+                <div className="flex items-center mb-2">
+                  <span className="text-2xl mr-2">{getTimerIcon(type)}</span>
+                  <span className="font-bold text-white">
+                    {type === 'sauna' ? 'Sauna' : type === 'steam' ? 'Bagno Turco' : 'Bagno Ghiacciato'}
+                  </span>
+                </div>
+                {maxDuration > 0 ? (
+                  <div>
+                    <div className="text-2xl font-bold text-yellow-400">
+                      {Math.round(maxDuration)} min
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {maxSession && new Date(maxSession.date).toLocaleDateString('it-IT')}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-gray-500 text-sm">Nessun record</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Analytics Chart */}
       <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-600">
         <h3 className="text-white font-bold text-xl mb-4">📊 ANALYTICS RECOVERY</h3>
@@ -554,6 +679,41 @@ export default function RecoveryWellness() {
               </div>
               <div className="text-xs text-gray-500 mt-1">
                 {achievement.requirement}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Scientific Benefits */}
+      <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-600">
+        <h3 className="text-white font-bold text-xl mb-6 flex items-center">
+          <span className="mr-2">🧬</span>
+          BENEFICI SCIENTIFICI PROVATI
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Object.entries(RECOVERY_BENEFITS).map(([key, benefit]) => (
+            <div key={key} className="bg-gray-700/50 rounded-xl p-5 border border-gray-600">
+              <div className="flex items-center mb-3">
+                <span className="text-3xl mr-3">{benefit.icon}</span>
+                <h4 className="font-bold text-white text-lg">{benefit.title}</h4>
+              </div>
+              
+              <p className="text-gray-300 text-sm mb-4 italic leading-relaxed">
+                {benefit.description}
+              </p>
+              
+              <div className="space-y-2 mb-4">
+                {benefit.benefits.map((item, i) => (
+                  <div key={i} className="text-sm text-gray-200 flex items-start">
+                    <span className="mr-2 mt-1">•</span>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="text-xs text-gray-400 border-t border-gray-600 pt-2">
+                <strong>Fonti:</strong> {benefit.sources.join(', ')}
               </div>
             </div>
           ))}
